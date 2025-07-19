@@ -4725,7 +4725,8 @@ function Sections.Paragraph(self, Properties)
 				itemFrame.Name = "ItemFrame_" .. key
 				itemFrame.BackgroundTransparency = 1
 				itemFrame.AutomaticSize = Enum.AutomaticSize.Y
-				itemFrame.Size = Library.UDim2(1, 0, 0, 0)
+				itemFrame.Size = Library.UDim2(1, -8, 0, 0)
+				itemFrame.Position = UDim2.fromOffset(4, 0)
 				itemFrame.LayoutOrder = layoutOrder
 				itemFrame.Parent = contentHolder
 				
@@ -4737,13 +4738,15 @@ function Sections.Paragraph(self, Properties)
 				itemLayout.Parent = itemFrame
 				
 				-- Create icon if provided
+				local iconLabel = nil
 				if item.Icon then
-					local iconLabel = Instance.new("ImageLabel")
+					iconLabel = Instance.new("ImageLabel")
 					iconLabel.Name = "Icon"
 					iconLabel.Image = item.Icon
 					iconLabel.ImageColor3 = Color3.fromRGB(115, 115, 115)
+					iconLabel.ImageTransparency = 0.2
 					iconLabel.BackgroundTransparency = 1
-					iconLabel.Size = UDim2.fromOffset(14, 14)
+					iconLabel.Size = UDim2.fromOffset(10, 10)
 					iconLabel.LayoutOrder = 1
 					iconLabel.Parent = itemFrame
 				end
@@ -4758,7 +4761,7 @@ function Sections.Paragraph(self, Properties)
 				textLabel.TextWrapped = true
 				textLabel.AutomaticSize = Enum.AutomaticSize.XY
 				textLabel.BackgroundTransparency = 1
-				textLabel.Size = Library.UDim2(1, item.Icon and -20 or 0, 0, 0)
+				textLabel.Size = Library.UDim2(1, 0, 0, 0)
 				textLabel.LayoutOrder = 2
 				textLabel.Parent = itemFrame
 				
@@ -4842,7 +4845,8 @@ function Sections.Paragraph(self, Properties)
 					itemFrame.Name = "ItemFrame_" .. key
 					itemFrame.BackgroundTransparency = 1
 					itemFrame.AutomaticSize = Enum.AutomaticSize.Y
-					itemFrame.Size = Library.UDim2(1, 0, 0, 0)
+					itemFrame.Size = Library.UDim2(1, -8, 0, 0)
+					itemFrame.Position = UDim2.fromOffset(4, 0)
 					itemFrame.LayoutOrder = layoutOrder
 					itemFrame.Parent = contentHolder
 					
@@ -4860,8 +4864,9 @@ function Sections.Paragraph(self, Properties)
 						iconLabel.Name = "Icon"
 						iconLabel.Image = item.Icon
 						iconLabel.ImageColor3 = Color3.fromRGB(115, 115, 115)
+						iconLabel.ImageTransparency = 0.2
 						iconLabel.BackgroundTransparency = 1
-						iconLabel.Size = UDim2.fromOffset(14, 14)
+						iconLabel.Size = UDim2.fromOffset(10, 10)
 						iconLabel.LayoutOrder = 1
 						iconLabel.Parent = itemFrame
 					end
@@ -4876,7 +4881,7 @@ function Sections.Paragraph(self, Properties)
 					textLabel.TextWrapped = true
 					textLabel.AutomaticSize = Enum.AutomaticSize.XY
 					textLabel.BackgroundTransparency = 1
-					textLabel.Size = Library.UDim2(1, item.Icon and -20 or 0, 0, 0)
+					textLabel.Size = Library.UDim2(1, 0, 0, 0)
 					textLabel.LayoutOrder = 2
 					textLabel.Parent = itemFrame
 					
