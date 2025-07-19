@@ -2993,6 +2993,16 @@ function Library.Window(self, Options)
                     if (Library.CurrentOpenDropdown.searchIcon) then
                         Library.CurrentOpenDropdown.searchIcon.ZIndex = Library.CurrentOpenDropdown.ZIndex + 6
                     end
+                    
+                    -- Restore original ZIndex values for previously open dropdown option buttons
+                    for _, optionData in pairs(Library.CurrentOpenDropdown.OptionInsts) do
+                        if optionData.button then
+                            optionData.button.ZIndex = Library.CurrentOpenDropdown.ZIndex + 10
+                        end
+                        if optionData.frame then
+                            optionData.frame.ZIndex = Library.CurrentOpenDropdown.ZIndex
+                        end
+                    end
                 end
 
                 local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
@@ -3006,13 +3016,23 @@ function Library.Window(self, Options)
             if (Dropdown.isOpen) then
                 Library.CurrentOpenDropdown = Dropdown
                 -- Increase ZIndex to render above all other elements including lists
-                dropdownList.ZIndex = 10000
-                optionHolder.ZIndex = 10002
+                dropdownList.ZIndex = 50000
+                optionHolder.ZIndex = 50002
                 if (Dropdown.searchInput) then
-                    Dropdown.searchInput.ZIndex = 10005
+                    Dropdown.searchInput.ZIndex = 50005
                 end
                 if (Dropdown.searchIcon) then
-                    Dropdown.searchIcon.ZIndex = 10006
+                    Dropdown.searchIcon.ZIndex = 50006
+                end
+                
+                -- Update all option button ZIndex values to ensure they render on top
+                for _, optionData in pairs(Dropdown.OptionInsts) do
+                    if optionData.button then
+                        optionData.button.ZIndex = 50010
+                    end
+                    if optionData.frame then
+                        optionData.frame.ZIndex = 50003
+                    end
                 end
                 -- Focus search input when opening
                 if (Dropdown.Searchable and Dropdown.searchInput) then
@@ -3029,6 +3049,16 @@ function Library.Window(self, Options)
                 end
                 if (Dropdown.searchIcon) then
                     Dropdown.searchIcon.ZIndex = Dropdown.ZIndex + 6
+                end
+                
+                -- Restore original ZIndex values for option buttons
+                for _, optionData in pairs(Dropdown.OptionInsts) do
+                    if optionData.button then
+                        optionData.button.ZIndex = Dropdown.ZIndex + 10
+                    end
+                    if optionData.frame then
+                        optionData.frame.ZIndex = Dropdown.ZIndex
+                    end
                 end
                 -- Clear search when closing
                 if (Dropdown.Searchable and Dropdown.searchInput) then
@@ -4720,7 +4750,7 @@ function Sections.Paragraph(self, Properties)
 
 	local uIListLayout = Instance.new("UIListLayout")		
 	uIListLayout.Name = "UIListLayout"
-	uIListLayout.Padding = UDim.new(0, 4)
+	uIListLayout.Padding = UDim.new(0, Paragraph.Title ~= false and 4 or 0)
 	uIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 	uIListLayout.Parent = contentHolder
 
@@ -4765,7 +4795,6 @@ function Sections.Paragraph(self, Properties)
 				itemFrame.BackgroundTransparency = 1
 				itemFrame.AutomaticSize = Enum.AutomaticSize.Y
 				itemFrame.Size = Library.UDim2(1, -8, 0, 0)
-				itemFrame.Position = UDim2.fromOffset(4, 0)
 				itemFrame.LayoutOrder = layoutOrder
 				itemFrame.Parent = contentHolder
 				
@@ -4867,6 +4896,11 @@ function Sections.Paragraph(self, Properties)
 				titleLabel.Text = newTitle
 			end
 		end
+		
+		-- Update UIListLayout padding based on title visibility
+		if uIListLayout then
+			uIListLayout.Padding = UDim.new(0, newTitle ~= false and 4 or 0)
+		end
 	end
 
 	function Paragraph.SetDescription(self, newDescription)
@@ -4893,7 +4927,6 @@ function Sections.Paragraph(self, Properties)
 					itemFrame.BackgroundTransparency = 1
 					itemFrame.AutomaticSize = Enum.AutomaticSize.Y
 					itemFrame.Size = Library.UDim2(1, -8, 0, 0)
-					itemFrame.Position = UDim2.fromOffset(4, 0)
 					itemFrame.LayoutOrder = layoutOrder
 					itemFrame.Parent = contentHolder
 					
