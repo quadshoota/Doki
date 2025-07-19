@@ -195,6 +195,28 @@ function Library.CheckDependencies(element)
 				if not hasRequired then
 					return false
 				end
+			elseif requiredValue.excludes then
+				-- Check if currentValue (table) does NOT contain any of the excluded values
+				if type(currentValue) ~= "table" then
+					return true -- If not a table, it passes the excludes check
+				end
+				
+				for _, excludeVal in ipairs(requiredValue.excludes) do
+					for _, curVal in ipairs(currentValue) do
+						if curVal == excludeVal then
+							return false -- Found an excluded value, fail the check
+						end
+					end
+				end
+				
+				-- For single value currentValue, check if it's in the excludes list
+				if type(currentValue) == "string" then
+					for _, excludeVal in ipairs(requiredValue.excludes) do
+						if currentValue == excludeVal then
+							return false
+						end
+					end
+				end
 			elseif requiredValue.containsAll then
 				-- Check if currentValue (table) contains all of the required values
 				if type(currentValue) ~= "table" then
@@ -3975,6 +3997,7 @@ function Library.Window(self, Options)
 			Section = self,
 			Name = Properties.Name or "",
 			Margin = Properties.Margin or 8,
+			Depends = Properties.Depends,
 		}
 
 		local separatorFrame = Instance.new("Frame", Separator.Section.Elements.SectionContent)
@@ -4019,6 +4042,17 @@ function Library.Window(self, Options)
 			separatorLine.AnchorPoint = Vector2.new(0.5, 0)
 		end
 
+		-- Add SetVisible method for dependency handling
+		function Separator:SetVisible(visible)
+			separatorFrame.Visible = visible
+		end
+
+		-- Register for dependency updates if dependencies exist
+		if Separator.Depends then
+			Library.Elements[Library.NextFlag()] = Separator
+			Library.UpdateElementVisibility(Separator)
+		end
+
 		return Separator
 	end
 
@@ -4037,6 +4071,7 @@ function Library.Window(self, Options)
 			Callback = Properties.Callback or function() end,
 			Binding = false,
 			State = false,
+			Depends = Properties.Depends,
 		}
 
 		local keybindframE = Instance.new("TextButton", Keybind.Section.Elements.SectionContent)
@@ -4307,6 +4342,17 @@ function Library.Window(self, Options)
 		Library.Flags[Keybind.Flag] = Keybind.Key
 		Library.Flags[Keybind.Flag .. "_STATE"] = Keybind.State
 
+		-- Add SetVisible method for dependency handling
+		function Keybind:SetVisible(visible)
+			keybindframE.Visible = visible
+		end
+
+		-- Register for dependency updates if dependencies exist
+		if Keybind.Depends then
+			Library.Elements[Keybind.Flag] = Keybind
+			Library.UpdateElementVisibility(Keybind)
+		end
+
 		return Keybind
 	end
 
@@ -4325,6 +4371,7 @@ function Library.Window(self, Options)
             Callback = Properties.Callback or function() end,
             Value = Properties.Default or Color3.fromRGB(255, 0, 0),
             IsOpen = false,
+            Depends = Properties.Depends,
         }
 
 		ColorPicker.Value = ColorPicker.Default
@@ -4697,6 +4744,16 @@ local sliderPoint = Instance.new("ImageButton")
         return self.Value
     end
 
+	-- Add SetVisible method for dependency handling
+	function ColorPicker:SetVisible(visible)
+		ColorPicker.Elements.colorpickerFrame.Visible = visible
+	end
+
+	-- Register for dependency updates if dependencies exist
+	if ColorPicker.Depends then
+		Library.Elements[ColorPicker.Flag] = ColorPicker
+		Library.UpdateElementVisibility(ColorPicker)
+	end
 
 	ColorPicker.Set(ColorPicker, ColorPicker.Default)
 	return ColorPicker
