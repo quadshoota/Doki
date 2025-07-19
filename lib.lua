@@ -172,28 +172,12 @@ function Library.CheckDependencies(element)
 	for flag, requiredValue in pairs(element.Depends) do
 		local currentValue = Library.Flags[flag]
 		
-		-- Debug logging
-		if flag == "FavouriteAutoFavouriteOption" then
-			print("Debug - Flag:", flag)
-			print("Debug - Current Value:", currentValue, type(currentValue))
-			if type(currentValue) == "table" then
-				print("Debug - Table contents:")
-				for i, v in ipairs(currentValue) do
-					print("  [" .. i .. "] =", v)
-				end
-			end
-			print("Debug - Required Value:", requiredValue, type(requiredValue))
-		end
-		
 		-- Handle different types of dependency checks
 		if type(requiredValue) == "table" then
 			-- Handle table-based requirements
 			if requiredValue.contains then
 				-- Check if currentValue (table) contains any of the required values
 				if type(currentValue) ~= "table" then
-					if flag == "FavouriteAutoFavouriteOption" then
-						print("Debug - Current value is not a table, returning false")
-					end
 					return false
 				end
 				
@@ -209,14 +193,7 @@ function Library.CheckDependencies(element)
 				end
 				
 				if not hasRequired then
-					if flag == "FavouriteAutoFavouriteOption" then
-						print("Debug - Required value not found in table, returning false")
-					end
 					return false
-				else
-					if flag == "FavouriteAutoFavouriteOption" then
-						print("Debug - Required value found in table, continuing")
-					end
 				end
 			elseif requiredValue.containsAll then
 				-- Check if currentValue (table) contains all of the required values
@@ -285,6 +262,14 @@ function Library.SetFlag(flag, value)
 	if Library.Callbacks[flag] then
 		Library.Callbacks[flag](value)
 	end
+end
+
+function Library.InitializeAllDependencies()
+	-- Wait a moment for all elements to be created, then update all dependencies
+	task.spawn(function()
+		task.wait(0.2)
+		Library.UpdateAllDependencies()
+	end)
 end
 
 function Library.GetConfig(self)
@@ -3910,6 +3895,11 @@ function Library.Window(self, Options)
 		-- Check dependencies on creation
 		if Textbox.Depends then
 			Library.UpdateElementVisibility(Textbox)
+			-- Also schedule a delayed check to ensure all elements are properly initialized
+			task.spawn(function()
+				task.wait(0.1)
+				Library.UpdateElementVisibility(Textbox)
+			end)
 		end
 
 		return Textbox
