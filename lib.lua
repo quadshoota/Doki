@@ -3730,6 +3730,65 @@ function Library.Window(self, Options)
 		return Textbox
 	end
 
+	function Sections.Separator(self, Properties)
+		if (not Properties) then
+			Properties = {}
+		end
+
+		local Separator = {
+			Window = self.Window,
+			Section = self,
+			Name = Properties.Name or "",
+			Height = Properties.Height or 1,
+			Color = Properties.Color or Color3.fromRGB(45, 45, 45),
+			Transparency = Properties.Transparency or 0.6,
+			Margin = Properties.Margin or 8,
+		}
+
+		local separatorFrame = Instance.new("Frame", Separator.Section.Elements.SectionContent)
+		separatorFrame.Name = "Separator"
+		separatorFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		separatorFrame.BackgroundTransparency = 1
+		separatorFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+		separatorFrame.BorderSizePixel = 0
+		separatorFrame.Size = Library.UDim2(1, 0, 0, Separator.Height + (Separator.Margin * 2))
+
+		local separatorLine = Instance.new("Frame")
+		separatorLine.Name = "SeparatorLine"
+		separatorLine.BackgroundColor3 = Separator.Color
+		separatorLine.BackgroundTransparency = Separator.Transparency
+		separatorLine.BorderSizePixel = 0
+		separatorLine.AnchorPoint = Vector2.new(0.5, 0.5)
+		separatorLine.Position = UDim2.fromScale(0.5, 0.5)
+		separatorLine.Size = Library.UDim2(1, -(Separator.Margin * 2), 0, Separator.Height)
+		separatorLine.Parent = separatorFrame
+
+		-- Optional label for named separators
+		if (Separator.Name and Separator.Name ~= "") then
+			separatorFrame.Size = Library.UDim2(1, 0, 0, 20 + (Separator.Margin * 2))
+			
+			local separatorLabel = Instance.new("TextLabel")
+			separatorLabel.Name = "SeparatorLabel"
+			separatorLabel.FontFace = Font.new("rbxassetid://12187365364")
+			separatorLabel.Text = Separator.Name
+			separatorLabel.TextColor3 = Color3.fromRGB(115, 115, 115)
+			separatorLabel.TextSize = Library.GetScaledTextSize(11)
+			separatorLabel.TextXAlignment = Enum.TextXAlignment.Center
+			separatorLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			separatorLabel.BackgroundTransparency = 1
+			separatorLabel.BorderSizePixel = 0
+			separatorLabel.Position = UDim2.new(0, Separator.Margin, 0, Separator.Margin)
+			separatorLabel.Size = Library.UDim2(1, -(Separator.Margin * 2), 0, 12)
+			separatorLabel.Parent = separatorFrame
+
+			-- Adjust line position to be below text
+			separatorLine.Position = UDim2.new(0.5, 0, 0, Separator.Margin + 14)
+			separatorLine.AnchorPoint = Vector2.new(0.5, 0)
+		end
+
+		return Separator
+	end
+
 	function Sections.Keybind(self, Properties)
 		if (not Properties) then
 			Properties = {}
