@@ -4680,7 +4680,7 @@ function Sections.Paragraph(self, Properties)
 	local Paragraph = {
 		Window = self.Window,
 		Section = self,
-		Title = Properties.Title or Properties.Name or "Title",
+		Title = Properties.Title ~= nil and Properties.Title or (Properties.Name or "Title"),
 		Description = Properties.Description or Properties.Content or "Description text goes here.",
 		Position = Properties.Position or "Left", 
 		Depends = Properties.Depends,
