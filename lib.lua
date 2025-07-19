@@ -204,11 +204,9 @@ function Library.CheckDependencies(element)
 							return false -- Found an excluded value, fail the check
 						end
 					end
-					return true -- String value not in excludes list, pass the check
-				end
-				
-				-- Handle table values
-				if type(currentValue) == "table" then
+					-- Continue checking other dependencies - don't return true here
+				elseif type(currentValue) == "table" then
+					-- Handle table values
 					for _, excludeVal in ipairs(requiredValue.excludes) do
 						for _, curVal in ipairs(currentValue) do
 							if curVal == excludeVal then
@@ -216,11 +214,9 @@ function Library.CheckDependencies(element)
 							end
 						end
 					end
-					return true -- No excluded values found in table, pass the check
+					-- Continue checking other dependencies - don't return true here
 				end
-				
-				-- If currentValue is neither string nor table, default to showing the element
-				return true
+				-- If currentValue is neither string nor table, continue checking other dependencies
 			elseif requiredValue.containsAll then
 				-- Check if currentValue (table) contains all of the required values
 				if type(currentValue) ~= "table" then
