@@ -12,6 +12,7 @@ Library = {
 	mainframe = nil,
     CurrentOpenDropdown = nil,
 	DropdownActive = false,
+	Dependencies = {},
 
 	ThemeObjects = {},
 	Holder = nil,
@@ -161,6 +162,50 @@ end
 function Library.NextFlag()
 	Library.UnNamedFlags = Library.UnNamedFlags + 1
 	return string.format("%.14g", Library.UnNamedFlags)
+end
+
+function Library.CheckDependencies(element)
+	if not element or not element.Depends then
+		return true
+	end
+	
+	for flag, requiredValue in pairs(element.Depends) do
+		local currentValue = Library.Flags[flag]
+		if currentValue ~= requiredValue then
+			return false
+		end
+	end
+	
+	return true
+end
+
+function Library.UpdateElementVisibility(element)
+	if not element then return end
+	
+	local shouldShow = Library.CheckDependencies(element)
+	if element.SetVisible then
+		element:SetVisible(shouldShow)
+	end
+end
+
+function Library.UpdateAllDependencies()
+	for flag, element in pairs(Library.Elements) do
+		if element.Depends then
+			Library.UpdateElementVisibility(element)
+		end
+	end
+end
+
+function Library.SetFlag(flag, value)
+	Library.Flags[flag] = value
+	
+	-- Update dependencies when a flag changes
+	Library.UpdateAllDependencies()
+	
+	-- Call the callback if it exists
+	if Library.Callbacks[flag] then
+		Library.Callbacks[flag](value)
+	end
 end
 
 function Library.GetConfig(self)
@@ -1737,10 +1782,12 @@ function Library.Window(self, Options)
 			Flag = (Properties.flag or Properties.Flag or Properties.pointer or Properties.Pointer or Library.NextFlag()),
 			Value = false,
 			HasKeybind = false,
+			Depends = Properties.Depends,
 		}
 		Toggle.Value = Toggle.State
 
 		local toggleElement = Instance.new("TextButton", Toggle.Section.Elements.SectionContent)
+		Toggle.Elements = { ToggleElement = toggleElement }
 		toggleElement.Name = "ToggleElement"
 		toggleElement.FontFace = Font.new("rbxasset://fonts/families/SourceSansPro.json")		
 		toggleElement.Text = ""
@@ -1866,7 +1913,11 @@ function Library.Window(self, Options)
 			end
 
 			Library.Flags[self.Flag] = self.State
-			self.Callback(self.State)
+			Library.SetFlag(self.Flag, self.State)
+		end
+
+		function Toggle.SetVisible(self, visible)
+			toggleElement.Visible = visible
 		end
 
 		toggleElement.MouseButton1Click:Connect(function()
@@ -2120,9 +2171,14 @@ function Library.Window(self, Options)
 		end)
 
         Toggle:Set(Toggle.Value)
-		Library.Flags[Toggle.Flag] = Toggle.Value
+		Library.SetFlag(Toggle.Flag, Toggle.Value)
 		Library.Elements[Toggle.Flag] = Toggle
 		Library.Callbacks[Toggle.Flag] = Toggle.Callback
+		
+		-- Check dependencies on creation
+		if Toggle.Depends then
+			Library.UpdateElementVisibility(Toggle)
+		end
 
 		return Toggle
 	end
@@ -2144,10 +2200,12 @@ function Library.Window(self, Options)
 			Flag = Properties.Flag or Library.NextFlag(),
 			Callback = Properties.Callback or function() end,
 			Value = Properties.Default or Properties.Min,
+			Depends = Properties.Depends,
 		}
 		Slider.Value = Slider.Default
 
 		local sliderframe = Instance.new("Frame", Slider.Section.Elements.SectionContent)
+		Slider.Elements = { SliderFrame = sliderframe }
 		sliderframe.Name = "Sliderframe"
 		sliderframe.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 		sliderframe.BackgroundTransparency = 1
@@ -2264,10 +2322,9 @@ function Library.Window(self, Options)
 				slidertextbox.Text = string.format(format, Slider.Value) .. Slider.Suffix
 			end
 
-            Library.Flags[Slider.Flag] = Slider.Value
+            Library.SetFlag(Slider.Flag, Slider.Value)
 			Library.Callbacks[Slider.Flag] = Slider.Callback
             Library.Elements[Slider.Flag] = Slider
-			Slider.Callback(Slider.Value)
 		end
 
 		local function HandleSlide(input)
@@ -2354,6 +2411,15 @@ function Library.Window(self, Options)
 		function Slider.GetValue(self)
 			return Slider.Value
 		end
+		
+		function Slider.SetVisible(self, visible)
+			sliderframe.Visible = visible
+		end
+		
+		-- Check dependencies on creation
+		if Slider.Depends then
+			Library.UpdateElementVisibility(Slider)
+		end
 
 		return Slider
 	end
@@ -2383,6 +2449,7 @@ function Library.Window(self, Options)
 			FilteredOptions = {},
 			SearchQuery = "",
 			isOpen = false,
+			Depends = Properties.Depends,
 		}
 
 		local dropdown = Instance.new("Frame", Dropdown.Section.Elements.SectionContent)
@@ -2827,8 +2894,7 @@ function Library.Window(self, Options)
 				end
 
 				updateCurrentText()
-				Library.Flags[Dropdown.Flag] = chosenValue
-				Dropdown.Callback(chosenValue)
+				Library.SetFlag(Dropdown.Flag, chosenValue)
 
                 if (not Dropdown.isOpen) then
                     dropdownList.Visible = false
@@ -2957,7 +3023,7 @@ function Library.Window(self, Options)
 			end
 
 			updateCurrentText()
-			Library.Flags[Dropdown.Flag] = chosenValue
+			Library.SetFlag(Dropdown.Flag, chosenValue)
 		end
 
 		function Dropdown.Set(self, value)
@@ -2998,8 +3064,7 @@ function Library.Window(self, Options)
 
 			if (validValue) then
 				updateCurrentText()
-				Library.Flags[Dropdown.Flag] = chosenValue
-				Dropdown.Callback(chosenValue)
+				Library.SetFlag(Dropdown.Flag, chosenValue)
 			end
 		end
 
@@ -3096,6 +3161,15 @@ function Library.Window(self, Options)
 				end
 			end
 		end)
+		
+		function Dropdown.SetVisible(self, visible)
+			dropdown.Visible = visible
+		end
+		
+		-- Check dependencies on creation
+		if Dropdown.Depends then
+			Library.UpdateElementVisibility(Dropdown)
+		end
 
 		return Dropdown
 	end
@@ -3120,6 +3194,7 @@ function Library.Window(self, Options)
 			MaxHeight = Properties.MaxHeight or 150,
 			MinHeight = Properties.MinHeight or 50, -- Minimum height for the list
 			OptionInsts = {},
+			Depends = Properties.Depends,
 		}
 
 		local listFrame = Instance.new("Frame", List.Section.Elements.SectionContent)
@@ -3305,8 +3380,7 @@ function Library.Window(self, Options)
 					end
 				end
 
-				Library.Flags[List.Flag] = chosenValue
-				List.Callback(chosenValue)
+				Library.SetFlag(List.Flag, chosenValue)
 			end)
 
 			return option
@@ -3381,7 +3455,7 @@ function Library.Window(self, Options)
 				end
 			end
 
-			Library.Flags[List.Flag] = chosenValue
+			Library.SetFlag(List.Flag, chosenValue)
 		end
 
 		function List.Set(self, value)
@@ -3421,18 +3495,26 @@ function Library.Window(self, Options)
 			end
 
 			if (validValue) then
-				Library.Flags[List.Flag] = chosenValue
-				List.Callback(chosenValue)
+				Library.SetFlag(List.Flag, chosenValue)
 			end
 		end
 
 		function List.GetValue(self)
 			return chosenValue
 		end
+		
+		function List.SetVisible(self, visible)
+			listFrame.Visible = visible
+		end
         
 		List:Refresh(List.Options)
 		Library.Elements[List.Flag] = List
 		Library.Callbacks[List.Flag] = List.Callback
+		
+		-- Check dependencies on creation
+		if List.Depends then
+			Library.UpdateElementVisibility(List)
+		end
 
 		return List
 	end
@@ -3449,9 +3531,11 @@ function Library.Window(self, Options)
             Callback = Properties.Callback or function() end,
             Flag = Properties.Flag or Library.NextFlag(),
             IsButton = true,
+            Depends = Properties.Depends,
         }
 
         local tabButton = Instance.new("TextButton", Button.Section.Elements.SectionContent)
+        Button.Elements = { ButtonFrame = tabButton }
         tabButton.Name = "tab button"
         tabButton.FontFace = Font.new("rbxassetid://12187361378")		
 		tabButton.Text = ""
@@ -3527,8 +3611,18 @@ function Library.Window(self, Options)
 
             Button:Click()
         end)
+        
+        function Button.SetVisible(self, visible)
+            tabButton.Visible = visible
+        end
 
         Library.Elements[Button.Flag] = Button
+        
+        -- Check dependencies on creation
+        if Button.Depends then
+            Library.UpdateElementVisibility(Button)
+        end
+        
         return Button
     end
 
@@ -4481,9 +4575,11 @@ function Sections.Paragraph(self, Properties)
 		Title = Properties.Title or Properties.Name or "Title",
 		Description = Properties.Description or Properties.Content or "Description text goes here.",
 		Position = Properties.Position or "Left", 
+		Depends = Properties.Depends,
 	}
 
 	local paragraphFrame = Instance.new("Frame", Paragraph.Section.Elements.SectionContent)
+	Paragraph.Elements = { ParagraphFrame = paragraphFrame }
 	paragraphFrame.Name = "ParagraphFrame"
 	paragraphFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 	paragraphFrame.BackgroundTransparency = 1
@@ -4606,6 +4702,15 @@ function Sections.Paragraph(self, Properties)
 			titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 			descriptionLabel.TextXAlignment = Enum.TextXAlignment.Left
 		end
+	end
+	
+	function Paragraph.SetVisible(self, visible)
+		paragraphFrame.Visible = visible
+	end
+	
+	-- Check dependencies on creation
+	if Paragraph.Depends then
+		Library.UpdateElementVisibility(Paragraph)
 	end
 
 	return Paragraph
