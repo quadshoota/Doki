@@ -2733,6 +2733,10 @@ function Library.Window(self, Options)
             searchPadding.PaddingLeft = UDim.new(0, 6)
             searchPadding.PaddingRight = UDim.new(0, 16)
             searchPadding.Parent = searchInput
+            
+            -- Store references for ZIndex manipulation
+            Dropdown.searchInput = searchInput
+            Dropdown.searchIcon = searchIcon
         end
 
         local optionHolder = Instance.new("ScrollingFrame")		
@@ -2760,6 +2764,8 @@ function Library.Window(self, Options)
         else
             optionHolder.Size = Library.UDim2(1, 0, 1, Dropdown.Searchable and -28 or 0)
         end
+
+        Dropdown.optionHolder = optionHolder
 
 		local uICorner1 = Instance.new("UICorner")		
 		uICorner1.Name = "UICorner"
@@ -2976,6 +2982,17 @@ function Library.Window(self, Options)
 				Library.DropdownActive = false
                 if (Library.CurrentOpenDropdown.dropdownList) then
                     Library.CurrentOpenDropdown.dropdownList.Visible = false
+                    -- Restore original ZIndex for the previously open dropdown
+                    Library.CurrentOpenDropdown.dropdownList.ZIndex = Library.CurrentOpenDropdown.ZIndex
+                    if (Library.CurrentOpenDropdown.optionHolder) then
+                        Library.CurrentOpenDropdown.optionHolder.ZIndex = Library.CurrentOpenDropdown.ZIndex + 2
+                    end
+                    if (Library.CurrentOpenDropdown.searchInput) then
+                        Library.CurrentOpenDropdown.searchInput.ZIndex = Library.CurrentOpenDropdown.ZIndex + 5
+                    end
+                    if (Library.CurrentOpenDropdown.searchIcon) then
+                        Library.CurrentOpenDropdown.searchIcon.ZIndex = Library.CurrentOpenDropdown.ZIndex + 6
+                    end
                 end
 
                 local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
@@ -2988,16 +3005,34 @@ function Library.Window(self, Options)
             
             if (Dropdown.isOpen) then
                 Library.CurrentOpenDropdown = Dropdown
+                -- Increase ZIndex to render above all other elements including lists
+                dropdownList.ZIndex = 10000
+                optionHolder.ZIndex = 10002
+                if (Dropdown.searchInput) then
+                    Dropdown.searchInput.ZIndex = 10005
+                end
+                if (Dropdown.searchIcon) then
+                    Dropdown.searchIcon.ZIndex = 10006
+                end
                 -- Focus search input when opening
-                if (Dropdown.Searchable and searchInput) then
+                if (Dropdown.Searchable and Dropdown.searchInput) then
                     task.wait(0.1)
-                    searchInput:CaptureFocus()
+                    Dropdown.searchInput:CaptureFocus()
                 end
             else
                 Library.CurrentOpenDropdown = nil
+                -- Restore original ZIndex when closing
+                dropdownList.ZIndex = Dropdown.ZIndex
+                optionHolder.ZIndex = Dropdown.ZIndex + 2
+                if (Dropdown.searchInput) then
+                    Dropdown.searchInput.ZIndex = Dropdown.ZIndex + 5
+                end
+                if (Dropdown.searchIcon) then
+                    Dropdown.searchIcon.ZIndex = Dropdown.ZIndex + 6
+                end
                 -- Clear search when closing
-                if (Dropdown.Searchable and searchInput) then
-                    searchInput.Text = ""
+                if (Dropdown.Searchable and Dropdown.searchInput) then
+                    Dropdown.searchInput.Text = ""
                     filterOptions("")
                 end
             end
@@ -4697,28 +4732,32 @@ function Sections.Paragraph(self, Properties)
 		uIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
 	end
 
-	local titleLabel = Instance.new("TextLabel")		
-	titleLabel.Name = "TitleLabel"
-	titleLabel.FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.Medium, Enum.FontStyle.Normal)
-	titleLabel.Text = Paragraph.Title
-	titleLabel.TextColor3 = Color3.fromRGB(221, 221, 221)
-	titleLabel.TextSize = Library.GetScaledTextSize(14)
-	titleLabel.TextWrapped = true
-	titleLabel.AutomaticSize = Enum.AutomaticSize.Y
-	titleLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	titleLabel.BackgroundTransparency = 1
-	titleLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
-	titleLabel.BorderSizePixel = 0
-	titleLabel.Size = Library.UDim2(1, 0, 0, 0)
-	titleLabel.LayoutOrder = 1
-	titleLabel.Parent = contentHolder
+	-- Create title label only if title is not false
+	local titleLabel = nil
+	if Paragraph.Title ~= false then
+		titleLabel = Instance.new("TextLabel")		
+		titleLabel.Name = "TitleLabel"
+		titleLabel.FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.Medium, Enum.FontStyle.Normal)
+		titleLabel.Text = Paragraph.Title
+		titleLabel.TextColor3 = Color3.fromRGB(221, 221, 221)
+		titleLabel.TextSize = Library.GetScaledTextSize(14)
+		titleLabel.TextWrapped = true
+		titleLabel.AutomaticSize = Enum.AutomaticSize.Y
+		titleLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		titleLabel.BackgroundTransparency = 1
+		titleLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+		titleLabel.BorderSizePixel = 0
+		titleLabel.Size = Library.UDim2(1, 0, 0, 0)
+		titleLabel.LayoutOrder = 1
+		titleLabel.Parent = contentHolder
+	end
 
 	-- Handle both old string format and new structured format
 	local descriptionElements = {}
 	
 	if type(Paragraph.Description) == "table" then
 		-- New structured format with icons
-		local layoutOrder = 2
+		local layoutOrder = Paragraph.Title ~= false and 2 or 1
 		for key, item in pairs(Paragraph.Description) do
 			if type(item) == "table" and item.Text then
 				local itemFrame = Instance.new("Frame")
@@ -4751,7 +4790,7 @@ function Sections.Paragraph(self, Properties)
 				textLabel.FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
 				textLabel.Text = item.Text or ""
 				textLabel.TextColor3 = Color3.fromRGB(115, 115, 115)
-				textLabel.TextSize = Library.GetScaledTextSize(11)
+				textLabel.TextSize = Library.GetScaledTextSize(12)
 				textLabel.TextWrapped = true
 				textLabel.AutomaticSize = Enum.AutomaticSize.Y
 				textLabel.BackgroundTransparency = 1
@@ -4795,7 +4834,7 @@ function Sections.Paragraph(self, Properties)
 		descriptionLabel.FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
 		descriptionLabel.Text = Paragraph.Description
 		descriptionLabel.TextColor3 = Color3.fromRGB(115, 115, 115)
-		descriptionLabel.TextSize = Library.GetScaledTextSize(11)
+		descriptionLabel.TextSize = Library.GetScaledTextSize(12)
 		descriptionLabel.TextWrapped = true
 		descriptionLabel.AutomaticSize = Enum.AutomaticSize.Y
 		descriptionLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -4803,7 +4842,7 @@ function Sections.Paragraph(self, Properties)
 		descriptionLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		descriptionLabel.BorderSizePixel = 0
 		descriptionLabel.Size = Library.UDim2(1, 0, 0, 0)
-		descriptionLabel.LayoutOrder = 2
+		descriptionLabel.LayoutOrder = Paragraph.Title ~= false and 2 or 1
 		descriptionLabel.Parent = contentHolder
 		
 		-- Set text alignment based on position
@@ -4820,7 +4859,14 @@ function Sections.Paragraph(self, Properties)
 
 	function Paragraph.SetTitle(self, newTitle)
 		self.Title = newTitle
-		titleLabel.Text = newTitle
+		if titleLabel then
+			if newTitle == false then
+				titleLabel.Visible = false
+			else
+				titleLabel.Visible = true
+				titleLabel.Text = newTitle
+			end
+		end
 	end
 
 	function Paragraph.SetDescription(self, newDescription)
@@ -4839,7 +4885,7 @@ function Sections.Paragraph(self, Properties)
 		-- Recreate description based on new format
 		if type(newDescription) == "table" then
 			-- New structured format with icons
-			local layoutOrder = 2
+			local layoutOrder = self.Title ~= false and 2 or 1
 			for key, item in pairs(newDescription) do
 				if type(item) == "table" and item.Text then
 					local itemFrame = Instance.new("Frame")
@@ -4872,7 +4918,7 @@ function Sections.Paragraph(self, Properties)
 					textLabel.FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
 					textLabel.Text = item.Text or ""
 					textLabel.TextColor3 = Color3.fromRGB(115, 115, 115)
-					textLabel.TextSize = Library.GetScaledTextSize(11)
+					textLabel.TextSize = Library.GetScaledTextSize(12)
 					textLabel.TextWrapped = true
 					textLabel.AutomaticSize = Enum.AutomaticSize.Y
 					textLabel.BackgroundTransparency = 1
@@ -4916,7 +4962,7 @@ function Sections.Paragraph(self, Properties)
 			descriptionLabel.FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
 			descriptionLabel.Text = newDescription
 			descriptionLabel.TextColor3 = Color3.fromRGB(115, 115, 115)
-			descriptionLabel.TextSize = Library.GetScaledTextSize(11)
+			descriptionLabel.TextSize = Library.GetScaledTextSize(12)
 			descriptionLabel.TextWrapped = true
 			descriptionLabel.AutomaticSize = Enum.AutomaticSize.Y
 			descriptionLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -4924,7 +4970,7 @@ function Sections.Paragraph(self, Properties)
 			descriptionLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
 			descriptionLabel.BorderSizePixel = 0
 			descriptionLabel.Size = Library.UDim2(1, 0, 0, 0)
-			descriptionLabel.LayoutOrder = 2
+			descriptionLabel.LayoutOrder = self.Title ~= false and 2 or 1
 			descriptionLabel.Parent = contentHolder
 			
 			-- Set text alignment based on position
@@ -4948,19 +4994,25 @@ function Sections.Paragraph(self, Properties)
 			contentHolder.Position = UDim2.new(0, 0, 0, 0)
 			contentHolder.Size = Library.UDim2(1, -7, 0, 0)
 			uIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
-			titleLabel.TextXAlignment = Enum.TextXAlignment.Right
+			if titleLabel then
+				titleLabel.TextXAlignment = Enum.TextXAlignment.Right
+			end
 		elseif (newPosition == "Center") then
 			contentHolder.AnchorPoint = Vector2.new(0.5, 0)
 			contentHolder.Position = UDim2.new(0.5, 0, 0, 0)
 			contentHolder.Size = Library.UDim2(1, -14, 0, 0)
 			uIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-			titleLabel.TextXAlignment = Enum.TextXAlignment.Center
+			if titleLabel then
+				titleLabel.TextXAlignment = Enum.TextXAlignment.Center
+			end
 		else 
 			contentHolder.AnchorPoint = Vector2.new(0, 0)
 			contentHolder.Position = UDim2.new(0, 8, 0, 0)
 			contentHolder.Size = Library.UDim2(1, -16, 0, 0)
 			uIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-			titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+			if titleLabel then
+				titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+			end
 		end
 		
 		-- Update description alignment based on format
