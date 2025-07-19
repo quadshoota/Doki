@@ -2993,6 +2993,7 @@ function Library.Window(self, Options)
 			Callback = Properties.Callback or function() end,
 			ZIndex = Properties.zIndex or Properties.Zindex or (1000 - self.ListCount),
 			MaxHeight = Properties.MaxHeight or 150,
+			MinHeight = Properties.MinHeight or 50, -- Minimum height for the list
 			OptionInsts = {},
 		}
 
@@ -3004,7 +3005,7 @@ function Library.Window(self, Options)
 		listFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		listFrame.BorderSizePixel = 0
 		listFrame.ZIndex = List.ZIndex
-		listFrame.Size = Library.UDim2(1, 0, 0, math.min(25 + (#List.Options * 22) + 10, List.MaxHeight + 25))
+		listFrame.Size = Library.UDim2(1, 0, 0, math.max(List.MinHeight + 25, math.min(25 + (#List.Options * 22) + 10, List.MaxHeight + 25)))
 
 		local listName = Instance.new("TextLabel")		
 		listName.Name = "ListName"
@@ -3030,7 +3031,7 @@ function Library.Window(self, Options)
 		listContainer.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		listContainer.BorderSizePixel = 0
 		listContainer.Position = UDim2.new(0.5, 0, 0, 22)
-		listContainer.Size = Library.UDim2(1, -14, 0, math.min(#List.Options * 22 + 4, List.MaxHeight))
+		listContainer.Size = Library.UDim2(1, -14, 0, math.max(List.MinHeight, math.min(#List.Options * 22 + 4, List.MaxHeight)))
 		listContainer.ZIndex = List.ZIndex
 		listContainer.ClipsDescendants = true
 		listContainer.Parent = listFrame
@@ -3219,9 +3220,9 @@ function Library.Window(self, Options)
 
 			-- Update container size
 			local optionCount = #List.Options
-			local newHeight = math.min(optionCount * 22 + 4, List.MaxHeight)
+			local newHeight = math.max(List.MinHeight, math.min(optionCount * 22 + 4, List.MaxHeight))
 			listContainer.Size = Library.UDim2(1, -14, 0, newHeight)
-			listFrame.Size = Library.UDim2(1, 0, 0, newHeight + 25)
+			listFrame.Size = Library.UDim2(1, 0, 0, math.max(List.MinHeight + 25, newHeight + 25))
 
 			if (List.Default) then
 				if (List.Max) then
