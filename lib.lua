@@ -171,8 +171,64 @@ function Library.CheckDependencies(element)
 	
 	for flag, requiredValue in pairs(element.Depends) do
 		local currentValue = Library.Flags[flag]
-		if currentValue ~= requiredValue then
-			return false
+		
+		-- Handle different types of dependency checks
+		if type(requiredValue) == "table" then
+			-- Handle table-based requirements
+			if requiredValue.contains then
+				-- Check if currentValue (table) contains any of the required values
+				if type(currentValue) ~= "table" then
+					return false
+				end
+				
+				local hasRequired = false
+				for _, reqVal in ipairs(requiredValue.contains) do
+					for _, curVal in ipairs(currentValue) do
+						if curVal == reqVal then
+							hasRequired = true
+							break
+						end
+					end
+					if hasRequired then break end
+				end
+				
+				if not hasRequired then
+					return false
+				end
+			elseif requiredValue.containsAll then
+				-- Check if currentValue (table) contains all of the required values
+				if type(currentValue) ~= "table" then
+					return false
+				end
+				
+				for _, reqVal in ipairs(requiredValue.containsAll) do
+					local found = false
+					for _, curVal in ipairs(currentValue) do
+						if curVal == reqVal then
+							found = true
+							break
+						end
+					end
+					if not found then
+						return false
+					end
+				end
+			else
+				-- Direct table comparison
+				if currentValue ~= requiredValue then
+					return false
+				end
+			end
+		elseif type(requiredValue) == "function" then
+			-- Handle function-based requirements for custom logic
+			if not requiredValue(currentValue) then
+				return false
+			end
+		else
+			-- Handle simple value comparison
+			if currentValue ~= requiredValue then
+				return false
+			end
 		end
 	end
 	
@@ -3640,10 +3696,12 @@ function Library.Window(self, Options)
 			Flag = Properties.Flag or Library.NextFlag(),
 			Callback = Properties.Callback or function() end,
 			Value = "",
+			Depends = Properties.Depends,
 		}
 		Textbox.Value = Textbox.Default
 
 		local textox = Instance.new("Frame", Textbox.Section.Elements.SectionContent)
+		Textbox.Elements = { TextboxFrame = textox }
 		textox.Name = "Textox"
 		textox.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 		textox.BackgroundTransparency = 1
@@ -3770,8 +3828,7 @@ function Library.Window(self, Options)
 		function Textbox.Set(self, value)
 			self.Value = tostring(value)
 			textboxValue.Text = self.Value
-			Library.Flags[self.Flag] = self.Value
-			self.Callback(self.Value)
+			Library.SetFlag(self.Flag, self.Value)
 		end
 
 		function Textbox.GetValue(self)
@@ -3800,9 +3857,8 @@ function Library.Window(self, Options)
 			}):Play()
 
 			Textbox.Value = textboxValue.Text
-			Library.Flags[Textbox.Flag] = Textbox.Value
+			Library.SetFlag(Textbox.Flag, Textbox.Value)
             Library.Elements[Textbox.Flag] = Textbox
-			Textbox.Callback(Textbox.Value)
 		end)
 
 		textox.MouseEnter:Connect(function()
@@ -3821,8 +3877,17 @@ function Library.Window(self, Options)
 			}):Play()
 		end)
 
-        Library.Flags[Textbox.Flag] = Textbox.Value
+        Library.SetFlag(Textbox.Flag, Textbox.Value)
 		Library.Callbacks[Textbox.Flag] = Textbox.Callback
+		
+		function Textbox.SetVisible(self, visible)
+			textox.Visible = visible
+		end
+		
+		-- Check dependencies on creation
+		if Textbox.Depends then
+			Library.UpdateElementVisibility(Textbox)
+		end
 
 		return Textbox
 	end
