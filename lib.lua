@@ -3173,7 +3173,7 @@ function Library.Window(self, Options)
         optionHolder.AutomaticCanvasSize = Enum.AutomaticSize.Y
         optionHolder.ScrollBarThickness = 0
 		optionHolder.BackgroundColor3 = Color3.fromRGB(28, 29, 32)
-		optionHolder.BackgroundTransparency = 1
+		optionHolder.BackgroundTransparency = 0
 		optionHolder.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		optionHolder.BorderSizePixel = 0
         optionHolder.Selectable = true
