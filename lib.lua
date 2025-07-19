@@ -1636,6 +1636,58 @@ function Library.Window(self, Options)
 			title.Parent = sectiontitle
 		end
 
+		function Section.Disable(self, disabled)
+			if disabled == nil then disabled = true end
+			
+			-- Store the disabled state
+			self.Disabled = disabled
+			
+			-- Set visibility of the main section frame
+			section.Visible = not disabled
+			
+			-- If section has subsections, disable all subsection buttons and content
+			if self._Subsections then
+				for _, subsection in ipairs(self._Subsections) do
+					if subsection.Buttone then
+						subsection.Buttone.Active = not disabled
+						-- Visual indication when disabled
+						if disabled then
+							local disabledTween = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+							TweenService:Create(subsection.NameLabel, disabledTween, {
+								TextColor3 = Color3.fromRGB(60, 60, 60),
+							}):Play()
+						else
+							-- Restore original color based on active state
+							local enabledTween = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+							local targetColor = subsection.IsActive and Color3.fromRGB(221, 221, 221) or Color3.fromRGB(115, 115, 115)
+							TweenService:Create(subsection.NameLabel, enabledTween, {
+								TextColor3 = targetColor,
+							}):Play()
+						end
+					end
+					if subsection.Holder then
+						if disabled then
+							subsection.Holder.Visible = false
+						else
+							subsection.Holder.Visible = subsection.IsActive
+						end
+					end
+					-- Store disabled state for subsections too
+					subsection.Disabled = disabled
+				end
+			end
+			
+			-- Disable all elements within the section
+			-- Iterate through all elements in Library.Elements and check if they belong to this section
+			for _, element in pairs(Library.Elements) do
+				if element.Section == self then
+					if element.SetVisible then
+						element:SetVisible(not disabled)
+					end
+				end
+			end
+		end
+
 		Section.Tab.Sections[#Section.Tab.Sections + 1] = Section
 		return setmetatable(Section, Library.Sections)
 	end
@@ -1849,6 +1901,59 @@ function Library.Window(self, Options)
 			subsectionObj.IsActive = true
 
 			self.Elements = subsectionObj.Elements
+		end
+
+		function subsectionObj.Disable(self, disabled)
+			if disabled == nil then disabled = true end
+			
+			-- Store the disabled state
+			self.Disabled = disabled
+			
+			-- Disable/enable the subsection button
+			if self.Buttone then
+				self.Buttone.Active = not disabled
+				-- Visual indication when disabled
+				if disabled then
+					local disabledTween = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+					TweenService:Create(self.NameLabel, disabledTween, {
+						TextColor3 = Color3.fromRGB(60, 60, 60),
+					}):Play()
+				else
+					-- Restore original color based on active state
+					local enabledTween = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+					local targetColor = self.IsActive and Color3.fromRGB(221, 221, 221) or Color3.fromRGB(115, 115, 115)
+					TweenService:Create(self.NameLabel, enabledTween, {
+						TextColor3 = targetColor,
+					}):Play()
+				end
+			end
+			
+			-- Hide/show the subsection content
+			if self.Holder then
+				if disabled then
+					self.Holder.Visible = false
+				else
+					self.Holder.Visible = self.IsActive
+				end
+			end
+			
+			-- Disable all elements within the subsection by checking their GUI parent
+			for _, element in pairs(Library.Elements) do
+				if element.Elements then
+					-- Check each element's GUI components to see if they belong to this subsection
+					local belongsToSubsection = false
+					for _, guiElement in pairs(element.Elements) do
+						if guiElement and guiElement.Parent == self.Elements.SectionContent then
+							belongsToSubsection = true
+							break
+						end
+					end
+					
+					if belongsToSubsection and element.SetVisible then
+						element:SetVisible(not disabled)
+					end
+				end
+			end
 		end
 
 		return setmetatable(subsectionObj, getmetatable(self))
