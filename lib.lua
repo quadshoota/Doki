@@ -3866,7 +3866,6 @@ function Library.Window(self, Options)
 
 			Textbox.Value = textboxValue.Text
 			Library.SetFlag(Textbox.Flag, Textbox.Value)
-            Library.Elements[Textbox.Flag] = Textbox
 		end)
 
 		textox.MouseEnter:Connect(function()
@@ -3887,6 +3886,7 @@ function Library.Window(self, Options)
 
         Library.SetFlag(Textbox.Flag, Textbox.Value)
 		Library.Callbacks[Textbox.Flag] = Textbox.Callback
+		Library.Elements[Textbox.Flag] = Textbox
 		
 		function Textbox.SetVisible(self, visible)
 			textox.Visible = visible
@@ -3895,11 +3895,6 @@ function Library.Window(self, Options)
 		-- Check dependencies on creation
 		if Textbox.Depends then
 			Library.UpdateElementVisibility(Textbox)
-			-- Also schedule a delayed check to ensure all elements are properly initialized
-			task.spawn(function()
-				task.wait(0.1)
-				Library.UpdateElementVisibility(Textbox)
-			end)
 		end
 
 		return Textbox
