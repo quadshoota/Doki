@@ -3739,9 +3739,6 @@ function Library.Window(self, Options)
 			Window = self.Window,
 			Section = self,
 			Name = Properties.Name or "",
-			Height = Properties.Height or 1,
-			Color = Properties.Color or Color3.fromRGB(45, 45, 45),
-			Transparency = Properties.Transparency or 0.6,
 			Margin = Properties.Margin or 8,
 		}
 
@@ -3751,17 +3748,25 @@ function Library.Window(self, Options)
 		separatorFrame.BackgroundTransparency = 1
 		separatorFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		separatorFrame.BorderSizePixel = 0
-		separatorFrame.Size = Library.UDim2(1, 0, 0, Separator.Height + (Separator.Margin * 2))
+		separatorFrame.Size = Library.UDim2(1, 0, 0, 1 + (Separator.Margin * 2))
 
 		local separatorLine = Instance.new("Frame")
 		separatorLine.Name = "SeparatorLine"
-		separatorLine.BackgroundColor3 = Separator.Color
-		separatorLine.BackgroundTransparency = Separator.Transparency
+		separatorLine.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+		separatorLine.BackgroundTransparency = 0.5
 		separatorLine.BorderSizePixel = 0
 		separatorLine.AnchorPoint = Vector2.new(0.5, 0.5)
 		separatorLine.Position = UDim2.fromScale(0.5, 0.5)
-		separatorLine.Size = Library.UDim2(1, -(Separator.Margin * 2), 0, Separator.Height)
+		separatorLine.Size = Library.UDim2(1, -(Separator.Margin * 2), 0, 1)
 		separatorLine.Parent = separatorFrame
+
+		-- Add stroke like the tab separators
+		local separatorStroke = Instance.new("UIStroke")
+		separatorStroke.Name = "SeparatorStroke"
+		separatorStroke.Color = Color3.fromRGB(60, 60, 60)
+		separatorStroke.Transparency = 0.3
+		separatorStroke.Thickness = 1
+		separatorStroke.Parent = separatorLine
 
 		-- Optional label for named separators
 		if (Separator.Name and Separator.Name ~= "") then
