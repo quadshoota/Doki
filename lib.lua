@@ -3033,7 +3033,7 @@ function Library.Window(self, Options)
                 dropdownList.Position = UDim2.new(1, 0, 0, 23)
                 
                 if (calculatedHeight > maxHeight) then
-                    optionHolder.ScrollBarThickness = 6
+                    optionHolder.ScrollBarThickness = 0
                     optionHolder.AutomaticSize = Enum.AutomaticSize.None
                     optionHolder.Size = UDim2.fromScale(1, 1)
                     optionHolder.CanvasSize = Library.UDim2(0, 0, 0, calculatedHeight)
@@ -3173,7 +3173,7 @@ function Library.Window(self, Options)
         optionHolder.AutomaticCanvasSize = Enum.AutomaticSize.Y
         optionHolder.ScrollBarThickness = 0
 		optionHolder.BackgroundColor3 = Color3.fromRGB(28, 29, 32)
-		optionHolder.BackgroundTransparency = 0
+		optionHolder.BackgroundTransparency = 1
 		optionHolder.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		optionHolder.BorderSizePixel = 0
         optionHolder.Selectable = true
