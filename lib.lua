@@ -2569,7 +2569,7 @@ function Library.Window(self, Options)
             searchInput.BorderSizePixel = 0
             searchInput.Size = Library.UDim2(1, -8, 0, 20)
             searchInput.Position = UDim2.new(0, 4, 0, 4)
-            searchInput.ZIndex = Dropdown.ZIndex + 1
+            searchInput.ZIndex = Dropdown.ZIndex + 5
             searchInput.Parent = dropdownList
 
             local searchCorner = Instance.new("UICorner")
@@ -2579,7 +2579,26 @@ function Library.Window(self, Options)
             local searchStroke = Instance.new("UIStroke")
             searchStroke.Color = Color3.fromRGB(45, 45, 45)
             searchStroke.Transparency = 0.6
+            searchStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
             searchStroke.Parent = searchInput
+
+            -- Search icon
+            local searchIcon = Instance.new("ImageLabel")
+            searchIcon.Name = "SearchIcon"
+            searchIcon.Image = "rbxassetid://8560362020"
+            searchIcon.ImageColor3 = Color3.fromRGB(115, 115, 115)
+            searchIcon.AnchorPoint = Vector2.new(1, 0.5)
+            searchIcon.BackgroundTransparency = 1
+            searchIcon.Position = UDim2.new(1, -4, 0.5, 0)
+            searchIcon.Size = UDim2.fromOffset(12, 12)
+            searchIcon.ZIndex = Dropdown.ZIndex + 6
+            searchIcon.Parent = searchInput
+
+            -- Add padding to prevent text overlap with icon
+            local searchPadding = Instance.new("UIPadding")
+            searchPadding.PaddingLeft = UDim.new(0, 6)
+            searchPadding.PaddingRight = UDim.new(0, 20)
+            searchPadding.Parent = searchInput
         end
 
         local optionHolder = Instance.new("ScrollingFrame")		
@@ -2595,7 +2614,7 @@ function Library.Window(self, Options)
 		optionHolder.Active = true
         optionHolder.Size = UDim2.fromScale(1, 1)
         optionHolder.Position = Dropdown.Searchable and UDim2.new(0, 0, 0, 28) or UDim2.new(0, 0, 0, 0)
-        optionHolder.ZIndex = Dropdown.ZIndex
+        optionHolder.ZIndex = Dropdown.ZIndex + 2
         optionHolder.ClipsDescendants = true
         optionHolder.Parent = dropdownList
 
@@ -2730,7 +2749,7 @@ function Library.Window(self, Options)
 			textButton.Text = ""
 			textButton.BackgroundTransparency = 1
 			textButton.Size = UDim2.fromScale(1, 1)
-			textButton.ZIndex = 15
+			textButton.ZIndex = Dropdown.ZIndex + 10
 			textButton.AutoButtonColor = false
 			textButton.Parent = option
 
