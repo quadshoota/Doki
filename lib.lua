@@ -2377,8 +2377,11 @@ function Library.Window(self, Options)
 			ZIndex = Properties.zIndex or Properties.Zindex or (1000 - self.DropdownCount),
 			ScrollMaxHeight = Properties.ScrollMaxHeight or 200,
 			AutoSize = Properties.AutoSize ~= false, 
-			ManualSize = Properties.ManualSize or UDim2.new(1, 0, 0, 105), 
+			ManualSize = Properties.ManualSize or UDim2.new(1, 0, 0, 105),
+			Searchable = Properties.Searchable ~= false, -- Enable search by default
 			OptionInsts = {},
+			FilteredOptions = {},
+			SearchQuery = "",
 			isOpen = false,
 		}
 
@@ -2549,6 +2552,36 @@ function Library.Window(self, Options)
 		uIStroke1.Color = Color3.fromRGB(38, 38, 36)
 		uIStroke1.Parent = dropdownList
 
+        -- Search input (only if searchable)
+        local searchInput = nil
+        if (Dropdown.Searchable) then
+            searchInput = Instance.new("TextBox")
+            searchInput.Name = "SearchInput"
+            searchInput.FontFace = Font.new("rbxassetid://12187365364")
+            searchInput.PlaceholderText = "Search..."
+            searchInput.PlaceholderColor3 = Color3.fromRGB(115, 115, 115)
+            searchInput.Text = ""
+            searchInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+            searchInput.TextSize = Library.GetScaledTextSize(11)
+            searchInput.TextXAlignment = Enum.TextXAlignment.Left
+            searchInput.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+            searchInput.BackgroundTransparency = 0.2
+            searchInput.BorderSizePixel = 0
+            searchInput.Size = Library.UDim2(1, -8, 0, 20)
+            searchInput.Position = UDim2.new(0, 4, 0, 4)
+            searchInput.ZIndex = Dropdown.ZIndex + 1
+            searchInput.Parent = dropdownList
+
+            local searchCorner = Instance.new("UICorner")
+            searchCorner.CornerRadius = UDim.new(0, 3)
+            searchCorner.Parent = searchInput
+
+            local searchStroke = Instance.new("UIStroke")
+            searchStroke.Color = Color3.fromRGB(45, 45, 45)
+            searchStroke.Transparency = 0.6
+            searchStroke.Parent = searchInput
+        end
+
         local optionHolder = Instance.new("ScrollingFrame")		
         optionHolder.Name = "OptionHolder"
         optionHolder.AutomaticCanvasSize = Enum.AutomaticSize.Y
@@ -2561,6 +2594,7 @@ function Library.Window(self, Options)
         optionHolder.Selectable = true
 		optionHolder.Active = true
         optionHolder.Size = UDim2.fromScale(1, 1)
+        optionHolder.Position = Dropdown.Searchable and UDim2.new(0, 0, 0, 28) or UDim2.new(0, 0, 0, 0)
         optionHolder.ZIndex = Dropdown.ZIndex
         optionHolder.ClipsDescendants = true
         optionHolder.Parent = dropdownList
@@ -2571,7 +2605,7 @@ function Library.Window(self, Options)
             optionHolder.CanvasSize = UDim2.new(0, 0, 0, 0)
             optionHolder.AutomaticCanvasSize = Enum.AutomaticSize.Y
         else
-            optionHolder.Size = Library.UDim2(1, 0, 0, 105)
+            optionHolder.Size = Library.UDim2(1, 0, 1, Dropdown.Searchable and -28 or 0)
         end
 
 		local uICorner1 = Instance.new("UICorner")		
@@ -2592,6 +2626,54 @@ function Library.Window(self, Options)
 		uIPadding1.Parent = optionHolder
 
 		local chosenValue = Dropdown.Max and {} or (Dropdown.Default or "...")
+
+        -- Initialize filtered options
+        Dropdown.FilteredOptions = {}
+        for _, option in ipairs(Dropdown.Options) do
+            table.insert(Dropdown.FilteredOptions, option)
+        end
+
+        local function filterOptions(query)
+            Dropdown.SearchQuery = query:lower()
+            table.clear(Dropdown.FilteredOptions)
+            
+            if (Dropdown.SearchQuery == "") then
+                for _, option in ipairs(Dropdown.Options) do
+                    table.insert(Dropdown.FilteredOptions, option)
+                end
+            else
+                for _, option in ipairs(Dropdown.Options) do
+                    if (option:lower():find(Dropdown.SearchQuery, 1, true)) then
+                        table.insert(Dropdown.FilteredOptions, option)
+                    end
+                end
+            end
+            
+            -- Hide/show options based on filter
+            for optionName, optionData in pairs(Dropdown.OptionInsts) do
+                local shouldShow = table.find(Dropdown.FilteredOptions, optionName) ~= nil
+                optionData.frame.Visible = shouldShow
+            end
+        end
+
+        -- Search functionality
+        if (Dropdown.Searchable and searchInput) then
+            searchInput.Changed:Connect(function(property)
+                if (property == "Text") then
+                    filterOptions(searchInput.Text)
+                end
+            end)
+
+            searchInput.FocusLost:Connect(function()
+                -- Keep focus when dropdown is open
+                if (Dropdown.isOpen) then
+                    task.wait(0.1)
+                    if (Dropdown.isOpen) then
+                        searchInput:CaptureFocus()
+                    end
+                end
+            end)
+        end
 
         local function updateCurrentText()
             if (Dropdown.Max) then
@@ -2754,8 +2836,18 @@ function Library.Window(self, Options)
             
             if (Dropdown.isOpen) then
                 Library.CurrentOpenDropdown = Dropdown
+                -- Focus search input when opening
+                if (Dropdown.Searchable and searchInput) then
+                    task.wait(0.1)
+                    searchInput:CaptureFocus()
+                end
             else
                 Library.CurrentOpenDropdown = nil
+                -- Clear search when closing
+                if (Dropdown.Searchable and searchInput) then
+                    searchInput.Text = ""
+                    filterOptions("")
+                end
             end
             
             local tweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
@@ -2789,6 +2881,12 @@ function Library.Window(self, Options)
 			table.clear(Dropdown.OptionInsts)
 			Dropdown.Options = newOptions or {}
 
+            -- Update filtered options
+            table.clear(Dropdown.FilteredOptions)
+            for _, option in ipairs(Dropdown.Options) do
+                table.insert(Dropdown.FilteredOptions, option)
+            end
+
 			if (Dropdown.Max) then
 				chosenValue = {}
 			else
@@ -2798,6 +2896,11 @@ function Library.Window(self, Options)
 			for _, optionName in ipairs(Dropdown.Options) do
 				createOptionElement(optionName)
 			end
+
+            -- Apply current search filter
+            if (Dropdown.Searchable and searchInput) then
+                filterOptions(searchInput.Text)
+            end
 
 			if (Dropdown.Default) then
 				if (Dropdown.Max) then
