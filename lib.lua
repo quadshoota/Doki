@@ -4730,14 +4730,7 @@ function Sections.Paragraph(self, Properties)
 				itemFrame.LayoutOrder = layoutOrder
 				itemFrame.Parent = contentHolder
 				
-				local itemLayout = Instance.new("UIListLayout")
-				itemLayout.FillDirection = Enum.FillDirection.Horizontal
-				itemLayout.Padding = UDim.new(0, 6)
-				itemLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-				itemLayout.SortOrder = Enum.SortOrder.LayoutOrder
-				itemLayout.Parent = itemFrame
-				
-				-- Create icon if provided
+				-- Create icon if provided (positioned absolutely to not affect text layout)
 				local iconLabel = nil
 				if item.Icon then
 					iconLabel = Instance.new("ImageLabel")
@@ -4747,11 +4740,12 @@ function Sections.Paragraph(self, Properties)
 					iconLabel.ImageTransparency = 0.2
 					iconLabel.BackgroundTransparency = 1
 					iconLabel.Size = UDim2.fromOffset(10, 10)
-					iconLabel.LayoutOrder = 1
+					iconLabel.Position = UDim2.fromOffset(0, 0)
+					iconLabel.AnchorPoint = Vector2.new(0, 0.5)
 					iconLabel.Parent = itemFrame
 				end
 				
-				-- Create text label
+				-- Create text label (uses full width for proper alignment)
 				local textLabel = Instance.new("TextLabel")
 				textLabel.Name = "TextLabel"
 				textLabel.FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
@@ -4759,22 +4753,29 @@ function Sections.Paragraph(self, Properties)
 				textLabel.TextColor3 = Color3.fromRGB(115, 115, 115)
 				textLabel.TextSize = Library.GetScaledTextSize(11)
 				textLabel.TextWrapped = true
-				textLabel.AutomaticSize = Enum.AutomaticSize.XY
+				textLabel.AutomaticSize = Enum.AutomaticSize.Y
 				textLabel.BackgroundTransparency = 1
-				textLabel.Size = Library.UDim2(1, 0, 0, 0)
-				textLabel.LayoutOrder = 2
+				textLabel.Size = Library.UDim2(1, item.Icon and -16 or 0, 0, 0)
+				textLabel.Position = UDim2.fromOffset(item.Icon and 16 or 0, 0)
 				textLabel.Parent = itemFrame
 				
 				-- Set text alignment based on position
 				if (Paragraph.Position == "Center") then
-					itemLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 					textLabel.TextXAlignment = Enum.TextXAlignment.Center
+					if iconLabel then
+						iconLabel.Position = UDim2.new(0.5, -8 - (textLabel.TextBounds.X / 2), 0.5, 0)
+					end
 				elseif (Paragraph.Position == "Right") then
-					itemLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
 					textLabel.TextXAlignment = Enum.TextXAlignment.Right
+					if iconLabel then
+						iconLabel.Position = UDim2.new(1, -textLabel.TextBounds.X - 16, 0.5, 0)
+					end
 				else
-					itemLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
 					textLabel.TextXAlignment = Enum.TextXAlignment.Left
+					if iconLabel then
+						iconLabel.Position = UDim2.fromOffset(0, 0)
+						iconLabel.AnchorPoint = Vector2.new(0, 0.5)
+					end
 				end
 				
 				descriptionElements[key] = {
@@ -4850,14 +4851,7 @@ function Sections.Paragraph(self, Properties)
 					itemFrame.LayoutOrder = layoutOrder
 					itemFrame.Parent = contentHolder
 					
-					local itemLayout = Instance.new("UIListLayout")
-					itemLayout.FillDirection = Enum.FillDirection.Horizontal
-					itemLayout.Padding = UDim.new(0, 6)
-					itemLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-					itemLayout.SortOrder = Enum.SortOrder.LayoutOrder
-					itemLayout.Parent = itemFrame
-					
-					-- Create icon if provided
+					-- Create icon if provided (positioned absolutely to not affect text layout)
 					local iconLabel = nil
 					if item.Icon then
 						iconLabel = Instance.new("ImageLabel")
@@ -4867,11 +4861,12 @@ function Sections.Paragraph(self, Properties)
 						iconLabel.ImageTransparency = 0.2
 						iconLabel.BackgroundTransparency = 1
 						iconLabel.Size = UDim2.fromOffset(10, 10)
-						iconLabel.LayoutOrder = 1
+						iconLabel.Position = UDim2.fromOffset(0, 0)
+						iconLabel.AnchorPoint = Vector2.new(0, 0.5)
 						iconLabel.Parent = itemFrame
 					end
 					
-					-- Create text label
+					-- Create text label (uses full width for proper alignment)
 					local textLabel = Instance.new("TextLabel")
 					textLabel.Name = "TextLabel"
 					textLabel.FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
@@ -4879,22 +4874,29 @@ function Sections.Paragraph(self, Properties)
 					textLabel.TextColor3 = Color3.fromRGB(115, 115, 115)
 					textLabel.TextSize = Library.GetScaledTextSize(11)
 					textLabel.TextWrapped = true
-					textLabel.AutomaticSize = Enum.AutomaticSize.XY
+					textLabel.AutomaticSize = Enum.AutomaticSize.Y
 					textLabel.BackgroundTransparency = 1
-					textLabel.Size = Library.UDim2(1, 0, 0, 0)
-					textLabel.LayoutOrder = 2
+					textLabel.Size = Library.UDim2(1, item.Icon and -16 or 0, 0, 0)
+					textLabel.Position = UDim2.fromOffset(item.Icon and 16 or 0, 0)
 					textLabel.Parent = itemFrame
 					
 					-- Set text alignment based on position
 					if (Paragraph.Position == "Center") then
-						itemLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 						textLabel.TextXAlignment = Enum.TextXAlignment.Center
+						if iconLabel then
+							iconLabel.Position = UDim2.new(0.5, -8 - (textLabel.TextBounds.X / 2), 0.5, 0)
+						end
 					elseif (Paragraph.Position == "Right") then
-						itemLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
 						textLabel.TextXAlignment = Enum.TextXAlignment.Right
+						if iconLabel then
+							iconLabel.Position = UDim2.new(1, -textLabel.TextBounds.X - 16, 0.5, 0)
+						end
 					else
-						itemLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
 						textLabel.TextXAlignment = Enum.TextXAlignment.Left
+						if iconLabel then
+							iconLabel.Position = UDim2.fromOffset(0, 0)
+							iconLabel.AnchorPoint = Vector2.new(0, 0.5)
+						end
 					end
 					
 					descriptionElements[key] = {
@@ -4966,17 +4968,21 @@ function Sections.Paragraph(self, Properties)
 			-- Structured format - update each item's alignment
 			for key, element in pairs(descriptionElements) do
 				if element.frame and element.text then
-					local itemLayout = element.frame:FindFirstChild("UIListLayout")
-					if itemLayout then
-						if (newPosition == "Center") then
-							itemLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
-							element.text.TextXAlignment = Enum.TextXAlignment.Center
-						elseif (newPosition == "Right") then
-							itemLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
-							element.text.TextXAlignment = Enum.TextXAlignment.Right
-						else
-							itemLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-							element.text.TextXAlignment = Enum.TextXAlignment.Left
+					if (newPosition == "Center") then
+						element.text.TextXAlignment = Enum.TextXAlignment.Center
+						if element.icon then
+							element.icon.Position = UDim2.new(0.5, -8 - (element.text.TextBounds.X / 2), 0.5, 0)
+						end
+					elseif (newPosition == "Right") then
+						element.text.TextXAlignment = Enum.TextXAlignment.Right
+						if element.icon then
+							element.icon.Position = UDim2.new(1, -element.text.TextBounds.X - 16, 0.5, 0)
+						end
+					else
+						element.text.TextXAlignment = Enum.TextXAlignment.Left
+						if element.icon then
+							element.icon.Position = UDim2.fromOffset(0, 0)
+							element.icon.AnchorPoint = Vector2.new(0, 0.5)
 						end
 					end
 				end
