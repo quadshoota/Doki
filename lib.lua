@@ -196,27 +196,31 @@ function Library.CheckDependencies(element)
 					return false
 				end
 			elseif requiredValue.excludes then
-				-- Check if currentValue (table) does NOT contain any of the excluded values
-				if type(currentValue) ~= "table" then
-					return true -- If not a table, it passes the excludes check
-				end
-				
-				for _, excludeVal in ipairs(requiredValue.excludes) do
-					for _, curVal in ipairs(currentValue) do
-						if curVal == excludeVal then
-							return false -- Found an excluded value, fail the check
-						end
-					end
-				end
-				
-				-- For single value currentValue, check if it's in the excludes list
+				-- Check if currentValue does NOT contain any of the excluded values
+				-- Handle single string values first
 				if type(currentValue) == "string" then
 					for _, excludeVal in ipairs(requiredValue.excludes) do
 						if currentValue == excludeVal then
-							return false
+							return false -- Found an excluded value, fail the check
 						end
 					end
+					return true -- String value not in excludes list, pass the check
 				end
+				
+				-- Handle table values
+				if type(currentValue) == "table" then
+					for _, excludeVal in ipairs(requiredValue.excludes) do
+						for _, curVal in ipairs(currentValue) do
+							if curVal == excludeVal then
+								return false -- Found an excluded value, fail the check
+							end
+						end
+					end
+					return true -- No excluded values found in table, pass the check
+				end
+				
+				-- If currentValue is neither string nor table, default to showing the element
+				return true
 			elseif requiredValue.containsAll then
 				-- Check if currentValue (table) contains all of the required values
 				if type(currentValue) ~= "table" then
