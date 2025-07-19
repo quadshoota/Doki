@@ -1642,10 +1642,22 @@ function Library.Window(self, Options)
 			-- Store the disabled state
 			self.Disabled = disabled
 			
-			-- Set visibility of the main section frame
-			section.Visible = not disabled
+			-- Section remains visible, just darkened
+			if disabled then
+				-- Darken the section background
+				local disabledTween = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+				TweenService:Create(section, disabledTween, {
+					BackgroundTransparency = 0.7,
+				}):Play()
+			else
+				-- Restore normal appearance
+				local enabledTween = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+				TweenService:Create(section, enabledTween, {
+					BackgroundTransparency = 0.4,
+				}):Play()
+			end
 			
-			-- If section has subsections, disable all subsection buttons and content
+			-- If section has subsections, disable all subsection buttons
 			if self._Subsections then
 				for _, subsection in ipairs(self._Subsections) do
 					if subsection.Buttone then
@@ -1665,24 +1677,63 @@ function Library.Window(self, Options)
 							}):Play()
 						end
 					end
-					if subsection.Holder then
-						if disabled then
-							subsection.Holder.Visible = false
-						else
-							subsection.Holder.Visible = subsection.IsActive
-						end
-					end
 					-- Store disabled state for subsections too
 					subsection.Disabled = disabled
 				end
 			end
 			
-			-- Disable all elements within the section
-			-- Iterate through all elements in Library.Elements and check if they belong to this section
+			-- Disable all elements within the section (make them non-interactive and darkened)
 			for _, element in pairs(Library.Elements) do
 				if element.Section == self then
-					if element.SetVisible then
-						element:SetVisible(not disabled)
+					-- Store the original disabled state if not already stored
+					if element.OriginalDisabled == nil then
+						element.OriginalDisabled = element.Disabled or false
+					end
+					
+					-- Set the disabled state
+					element.Disabled = disabled
+					
+					-- Apply visual darkening effect to element
+					if element.Elements then
+						for _, guiElement in pairs(element.Elements) do
+							if guiElement and guiElement:IsA("GuiObject") then
+								if disabled then
+									-- Darken and make non-interactive
+									if guiElement:IsA("TextButton") or guiElement:IsA("ImageButton") then
+										guiElement.Active = false
+									end
+									local disabledTween = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+									TweenService:Create(guiElement, disabledTween, {
+										BackgroundTransparency = math.min(guiElement.BackgroundTransparency + 0.4, 1),
+									}):Play()
+									-- Darken text elements
+									for _, child in pairs(guiElement:GetDescendants()) do
+										if child:IsA("TextLabel") or child:IsA("TextButton") then
+											TweenService:Create(child, disabledTween, {
+												TextColor3 = Color3.fromRGB(60, 60, 60),
+											}):Play()
+										end
+									end
+								else
+									-- Restore normal appearance and functionality
+									if guiElement:IsA("TextButton") or guiElement:IsA("ImageButton") then
+										guiElement.Active = true
+									end
+									local enabledTween = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+									TweenService:Create(guiElement, enabledTween, {
+										BackgroundTransparency = math.max(guiElement.BackgroundTransparency - 0.4, 0),
+									}):Play()
+									-- Restore text colors (you may need to adjust these colors based on your theme)
+									for _, child in pairs(guiElement:GetDescendants()) do
+										if child:IsA("TextLabel") or child:IsA("TextButton") then
+											TweenService:Create(child, enabledTween, {
+												TextColor3 = Color3.fromRGB(221, 221, 221),
+											}):Play()
+										end
+									end
+								end
+							end
+						end
 					end
 				end
 			end
@@ -1849,6 +1900,10 @@ function Library.Window(self, Options)
 		end)
 
 		subsectionbutton.MouseButton1Click:Connect(function()
+			-- Check if the section is disabled
+			if self.Disabled then
+				return
+			end
 			for _, sub in ipairs(self._Subsections) do
 				local isActive = (sub == subsectionObj)
 				sub.Holder.Visible = isActive
@@ -1909,7 +1964,7 @@ function Library.Window(self, Options)
 			-- Store the disabled state
 			self.Disabled = disabled
 			
-			-- Disable/enable the subsection button
+			-- Disable/enable the subsection button but keep it visible
 			if self.Buttone then
 				self.Buttone.Active = not disabled
 				-- Visual indication when disabled
@@ -1918,6 +1973,13 @@ function Library.Window(self, Options)
 					TweenService:Create(self.NameLabel, disabledTween, {
 						TextColor3 = Color3.fromRGB(60, 60, 60),
 					}):Play()
+					-- Darken the button itself
+					TweenService:Create(self.Buttone, disabledTween, {
+						BackgroundTransparency = 0.7,
+					}):Play()
+					TweenService:Create(self.Inner, disabledTween, {
+						BackgroundTransparency = 0.7,
+					}):Play()
 				else
 					-- Restore original color based on active state
 					local enabledTween = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
@@ -1925,15 +1987,39 @@ function Library.Window(self, Options)
 					TweenService:Create(self.NameLabel, enabledTween, {
 						TextColor3 = targetColor,
 					}):Play()
+					-- Restore button transparency based on active state
+					local targetTransparency = self.IsActive and 0 or 1
+					TweenService:Create(self.Buttone, enabledTween, {
+						BackgroundTransparency = targetTransparency,
+					}):Play()
+					TweenService:Create(self.Inner, enabledTween, {
+						BackgroundTransparency = targetTransparency,
+					}):Play()
 				end
 			end
 			
-			-- Hide/show the subsection content
+			-- Keep subsection content visible but darken it
 			if self.Holder then
 				if disabled then
-					self.Holder.Visible = false
+					-- Darken the content area
+					local disabledTween = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+					for _, child in pairs(self.Holder:GetChildren()) do
+						if child:IsA("GuiObject") then
+							TweenService:Create(child, disabledTween, {
+								BackgroundTransparency = math.min(child.BackgroundTransparency + 0.4, 1),
+							}):Play()
+						end
+					end
 				else
-					self.Holder.Visible = self.IsActive
+					-- Restore normal appearance
+					local enabledTween = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+					for _, child in pairs(self.Holder:GetChildren()) do
+						if child:IsA("GuiObject") then
+							TweenService:Create(child, enabledTween, {
+								BackgroundTransparency = math.max(child.BackgroundTransparency - 0.4, 0),
+							}):Play()
+						end
+					end
 				end
 			end
 			
@@ -1949,8 +2035,55 @@ function Library.Window(self, Options)
 						end
 					end
 					
-					if belongsToSubsection and element.SetVisible then
-						element:SetVisible(not disabled)
+					if belongsToSubsection then
+						-- Store the original disabled state if not already stored
+						if element.OriginalDisabled == nil then
+							element.OriginalDisabled = element.Disabled or false
+						end
+						
+						-- Set the disabled state
+						element.Disabled = disabled
+						
+						-- Apply visual darkening effect to element
+						for _, guiElement in pairs(element.Elements) do
+							if guiElement and guiElement:IsA("GuiObject") then
+								if disabled then
+									-- Darken and make non-interactive
+									if guiElement:IsA("TextButton") or guiElement:IsA("ImageButton") then
+										guiElement.Active = false
+									end
+									local disabledTween = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+									TweenService:Create(guiElement, disabledTween, {
+										BackgroundTransparency = math.min(guiElement.BackgroundTransparency + 0.4, 1),
+									}):Play()
+									-- Darken text elements
+									for _, child in pairs(guiElement:GetDescendants()) do
+										if child:IsA("TextLabel") or child:IsA("TextButton") then
+											TweenService:Create(child, disabledTween, {
+												TextColor3 = Color3.fromRGB(60, 60, 60),
+											}):Play()
+										end
+									end
+								else
+									-- Restore normal appearance and functionality
+									if guiElement:IsA("TextButton") or guiElement:IsA("ImageButton") then
+										guiElement.Active = true
+									end
+									local enabledTween = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+									TweenService:Create(guiElement, enabledTween, {
+										BackgroundTransparency = math.max(guiElement.BackgroundTransparency - 0.4, 0),
+									}):Play()
+									-- Restore text colors
+									for _, child in pairs(guiElement:GetDescendants()) do
+										if child:IsA("TextLabel") or child:IsA("TextButton") then
+											TweenService:Create(child, enabledTween, {
+												TextColor3 = Color3.fromRGB(221, 221, 221),
+											}):Play()
+										end
+									end
+								end
+							end
+						end
 					end
 				end
 			end
@@ -2112,6 +2245,10 @@ function Library.Window(self, Options)
 		end
 
 		toggleElement.MouseButton1Click:Connect(function()
+			-- Check if the section or element is disabled
+			if Toggle.Section.Disabled or Toggle.Disabled then
+				return
+			end
 			Toggle:Set(not Toggle.State)
 		end)
 
@@ -2531,6 +2668,10 @@ function Library.Window(self, Options)
 		end
 
 		thebgofsliderbar.InputBegan:Connect(function(input)
+			-- Check if the section or element is disabled
+			if Slider.Section.Disabled or Slider.Disabled then
+				return
+			end
 			if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
 				Sliding = true
 				HandleSlide(input)
@@ -2553,6 +2694,10 @@ function Library.Window(self, Options)
 		end)
 
 		slidertextbox.FocusLost:Connect(function(enterPressed)
+			-- Check if the section or element is disabled
+			if Slider.Section.Disabled or Slider.Disabled then
+				return
+			end
 			if (enterPressed) then
 				local textContent = slidertextbox.Text
 				local numericString = textContent
@@ -3053,6 +3198,10 @@ function Library.Window(self, Options)
 			end)
 
 			textButton.MouseButton1Click:Connect(function()
+				-- Check if the section or element is disabled
+				if Dropdown.Section.Disabled or Dropdown.Disabled then
+					return
+				end
 				if (Dropdown.Max) then
 					local currentIndex = table.find(chosenValue, optionName)
 					if (Dropdown.Max == 1) then
@@ -3603,6 +3752,10 @@ function Library.Window(self, Options)
 			end)
 
 			textButton.MouseButton1Click:Connect(function()
+				-- Check if the section or element is disabled
+				if List.Section.Disabled or List.Disabled then
+					return
+				end
 				if (List.Max) then
 					local currentIndex = table.find(chosenValue, optionName)
 					if (List.Max == 1) then
@@ -3853,6 +4006,10 @@ function Library.Window(self, Options)
         end)
 
         thebuttonwow.MouseButton1Click:Connect(function()
+            -- Check if the section or element is disabled
+            if Button.Section.Disabled or Button.Disabled then
+                return
+            end
             local clickTween = TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
             TweenService:Create(thebuttonwow, clickTween, {
                 BackgroundTransparency = 0,
@@ -4036,6 +4193,11 @@ function Library.Window(self, Options)
 		end
 
 		textboxValue.Focused:Connect(function()
+			-- Check if the section or element is disabled
+			if Textbox.Section.Disabled or Textbox.Disabled then
+				textboxValue:ReleaseFocus()
+				return
+			end
 			local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 			TweenService:Create(uIStroke, tweenInfo, {
 				Color = Color3.fromRGB(38, 38, 36),
@@ -4047,6 +4209,10 @@ function Library.Window(self, Options)
 		end)
 
 		textboxValue.FocusLost:Connect(function(enterPressed)
+			-- Check if the section or element is disabled
+			if Textbox.Section.Disabled or Textbox.Disabled then
+				return
+			end
 			local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 			TweenService:Create(uIStroke, tweenInfo, {
 				Color = Color3.fromRGB(45, 45, 45),
