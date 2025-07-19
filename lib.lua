@@ -263,9 +263,6 @@ function Library.UpdateElementVisibility(element)
 	
 	local shouldShow = Library.CheckDependencies(element)
 	if element.SetVisible then
-		if element.Flag and (element.Flag == "FavouriteWeight" or element.Flag == "FavouritePrice") then
-			print("Debug - Updating visibility for", element.Flag, "shouldShow:", shouldShow)
-		end
 		element:SetVisible(shouldShow)
 	end
 end
