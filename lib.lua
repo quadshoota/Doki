@@ -2585,12 +2585,15 @@ function Library.Window(self, Options)
             -- Search icon
             local searchIcon = Instance.new("ImageLabel")
             searchIcon.Name = "SearchIcon"
-            searchIcon.Image = "rbxassetid://12187365364"
-            searchIcon.ImageColor3 = Color3.fromRGB(115, 115, 115)
+            searchIcon.Image = "rbxassetid://139032822388177"
+            searchIcon.ImageColor3 = Color3.fromRGB(80, 80, 75)
             searchIcon.AnchorPoint = Vector2.new(1, 0.5)
+            searchIcon.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
             searchIcon.BackgroundTransparency = 1
-            searchIcon.Position = UDim2.new(1, -2, 0.5, 0)
-            searchIcon.Size = UDim2.fromOffset(12, 12)
+            searchIcon.BorderColor3 = Color3.fromRGB(0, 0, 0)
+            searchIcon.BorderSizePixel = 0
+            searchIcon.Position = UDim2.new(1, 6, 0.5, 0)
+            searchIcon.Size = UDim2.fromOffset(14, 14)
             searchIcon.ZIndex = Dropdown.ZIndex + 6
             searchIcon.Parent = searchInput
 
@@ -3172,7 +3175,7 @@ function Library.Window(self, Options)
         optionHolder.Name = "OptionHolder"
         optionHolder.AutomaticCanvasSize = Enum.AutomaticSize.Y
         optionHolder.ScrollBarThickness = 0
-		optionHolder.BackgroundColor3 = Color3.fromRGB(28, 29, 32)
+		optionHolder.BackgroundColor3 = Color3.fromRGB(17, 17, 17)
 		optionHolder.BackgroundTransparency = 1
 		optionHolder.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		optionHolder.BorderSizePixel = 0
@@ -3746,7 +3749,6 @@ function Library.Window(self, Options)
 		separatorFrame.Name = "Separator"
 		separatorFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 		separatorFrame.BackgroundTransparency = 1
-		separatorFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		separatorFrame.BorderSizePixel = 0
 		separatorFrame.Size = Library.UDim2(1, 0, 0, 1 + (Separator.Margin * 2))
 
@@ -3754,19 +3756,13 @@ function Library.Window(self, Options)
 		separatorLine.Name = "SeparatorLine"
 		separatorLine.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
 		separatorLine.BackgroundTransparency = 0.5
+		separatorLine.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		separatorLine.BorderSizePixel = 0
 		separatorLine.AnchorPoint = Vector2.new(0.5, 0.5)
 		separatorLine.Position = UDim2.fromScale(0.5, 0.5)
-		separatorLine.Size = Library.UDim2(1, -(Separator.Margin * 2), 0, 1)
+		separatorLine.Size = Library.UDim2(1, -(Separator.Margin * 3), 0, 1)
+		separatorLine.ZIndex = 1000
 		separatorLine.Parent = separatorFrame
-
-		-- Add stroke like the tab separators
-		local separatorStroke = Instance.new("UIStroke")
-		separatorStroke.Name = "SeparatorStroke"
-		separatorStroke.Color = Color3.fromRGB(60, 60, 60)
-		separatorStroke.Transparency = 0.3
-		separatorStroke.Thickness = 1
-		separatorStroke.Parent = separatorLine
 
 		-- Optional label for named separators
 		if (Separator.Name and Separator.Name ~= "") then
@@ -4948,145 +4944,4 @@ end
 	end)
 end
 
-local Storage =
-{
-    Icons = {},
-    ConfigsPath = nil,
-}
-
-local Dependencies =
-{
-    VerifyAssets = function(self)
-        local assets = loadstring(game:HttpGet("https://raw.githubusercontent.com/doritolova4/a/refs/heads/main/icons/Available.lua"))()
-
-        for i,v in pairs(assets) do
-            if not isfile("Doki/Icons/" .. v .. ".png") then
-                local success, errorMessage = pcall(function()
-                    writefile("Doki/Icons/" .. v .. ".png", game:HttpGet("https://raw.githubusercontent.com/doritolova4/a/refs/heads/main/icons/" .. v .. ".png"))
-                end)
-
-                if not success then
-                    warn("Failed to download asset: " .. v .. " - " .. errorMessage)
-                else
-                    Storage.Icons[v] = "rbxasset://Doki/Icons/" .. v
-                    warn("Downloaded asset: " .. v)
-                end
-            end
-
-            if isfile("Doki/Icons/" .. v .. ".png") then
-                Storage.Icons[v] = "rbxasset://Doki/Icons/" .. v
-            end
-        end
-    end,
-
-    Cleanname = function(self, name)
-        return name:gsub("[^%a]", ""):lower()
-    end,
-
-    CreateDirectories = function(self)
-        local gamename = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
-        gamename = self:Cleanname(gamename)
-        
-        local dokipath = "Doki"
-        if not isfolder(dokipath) then
-            makefolder(dokipath)
-        end
-
-        local iconspath = dokipath .. "/Icons"
-        if not isfolder(iconspath) then
-            makefolder(iconspath)
-        end
-
-        local path = "Doki/" .. gamename .. "/"
-        if not isfolder(path) then
-            makefolder(path)
-        end
-
-        local configspath = path .. "Configs"
-        if not isfolder(configspath) then
-            makefolder(configspath)
-        end
-
-        Storage.ConfigsPath = configspath
-        self:VerifyAssets()
-    end,
-
-    CustomAsset = function(self, assetName) 
-        if not (Storage.Icons[assetName]) then
-            warn("Asset not found: " .. assetName)
-            return "rbxassetid://0" -- Return a default asset if not found
-        end
-
-        local path = "Doki/Icons/" .. assetName .. ".png"
-        if not isfile(path) then
-            warn("Asset file not found: " .. path)
-            return "rbxassetid://0" -- Return a default asset if file not found
-        end
-
-        local toasset = getcustomasset(path)
-        if (not toasset) then
-            warn("Failed to get custom asset: " .. path)
-            return "rbxassetid://0" -- Return a default asset if failed
-        end
-
-        return toasset
-    end,
-}
-
 return Library
-
---[[
-
-Dependencies:CreateDirectories()
-Library:Window({
-    Name = "Doki",
-    Key = "LunacyWindowsDetectionBoss7261",
-})
-
-Library:MobileButton()
-
-local Tabs =
-{
-    Main = Library:Tab({
-        Title = "Main",
-        Icon = Dependencies:CustomAsset("copy"),
-        Vertical = false,
-    }),
-
-    Configs = Library:Tab({
-        Title = "Configs",
-        Icon = Dependencies:CustomAsset("save"),
-        Vertical = true,
-    }),
-}
-
-local Sections = 
-{
-    Changelog = Tabs.Main:Section({
-        Title = "Changelog",
-        Side = "Left",
-        ShowTitle = false,
-    }),
-
-    Configs = Tabs.Configs:Section({
-        Title = "Configs",
-        Side = "Left",
-        ShowTitle = false,
-    }),
-}
-
-Sections.Changelog:Paragraph({
-    Title = "Changelog",
-    Description = "[+] Did this, and that.",
-    Position = "Center",
-})
-
-
-Sections.Changelog:List({
-    Name = "Always Visible List",
-    Options = {"Option 1", "Option 2", "Option 3"},
-    Default = "Option 2",
-    Callback = function(val) print("Selected:", val) end,
-})
-
-]]
