@@ -4713,31 +4713,105 @@ function Sections.Paragraph(self, Properties)
 	titleLabel.LayoutOrder = 1
 	titleLabel.Parent = contentHolder
 
-	local descriptionLabel = Instance.new("TextLabel")		
-	descriptionLabel.Name = "DescriptionLabel"
-	descriptionLabel.FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
-	descriptionLabel.Text = Paragraph.Description
-	descriptionLabel.TextColor3 = Color3.fromRGB(115, 115, 115)
-	descriptionLabel.TextSize = Library.GetScaledTextSize(11)
-	descriptionLabel.TextWrapped = true
-	descriptionLabel.AutomaticSize = Enum.AutomaticSize.Y
-	descriptionLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	descriptionLabel.BackgroundTransparency = 1
-	descriptionLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
-	descriptionLabel.BorderSizePixel = 0
-	descriptionLabel.Size = Library.UDim2(1, 0, 0, 0)
-	descriptionLabel.LayoutOrder = 2
-	descriptionLabel.Parent = contentHolder
-
-	if (Paragraph.Position == "Center") then
-		titleLabel.TextXAlignment = Enum.TextXAlignment.Center
-		descriptionLabel.TextXAlignment = Enum.TextXAlignment.Center
-	elseif (Paragraph.Position == "Right") then
-		titleLabel.TextXAlignment = Enum.TextXAlignment.Right
-		descriptionLabel.TextXAlignment = Enum.TextXAlignment.Right
-	else 
-		titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-		descriptionLabel.TextXAlignment = Enum.TextXAlignment.Left
+	-- Handle both old string format and new structured format
+	local descriptionElements = {}
+	
+	if type(Paragraph.Description) == "table" then
+		-- New structured format with icons
+		local layoutOrder = 2
+		for key, item in pairs(Paragraph.Description) do
+			if type(item) == "table" and item.Text then
+				local itemFrame = Instance.new("Frame")
+				itemFrame.Name = "ItemFrame_" .. key
+				itemFrame.BackgroundTransparency = 1
+				itemFrame.AutomaticSize = Enum.AutomaticSize.Y
+				itemFrame.Size = Library.UDim2(1, 0, 0, 0)
+				itemFrame.LayoutOrder = layoutOrder
+				itemFrame.Parent = contentHolder
+				
+				local itemLayout = Instance.new("UIListLayout")
+				itemLayout.FillDirection = Enum.FillDirection.Horizontal
+				itemLayout.Padding = UDim.new(0, 6)
+				itemLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+				itemLayout.SortOrder = Enum.SortOrder.LayoutOrder
+				itemLayout.Parent = itemFrame
+				
+				-- Create icon if provided
+				if item.Icon then
+					local iconLabel = Instance.new("ImageLabel")
+					iconLabel.Name = "Icon"
+					iconLabel.Image = item.Icon
+					iconLabel.ImageColor3 = Color3.fromRGB(115, 115, 115)
+					iconLabel.BackgroundTransparency = 1
+					iconLabel.Size = UDim2.fromOffset(14, 14)
+					iconLabel.LayoutOrder = 1
+					iconLabel.Parent = itemFrame
+				end
+				
+				-- Create text label
+				local textLabel = Instance.new("TextLabel")
+				textLabel.Name = "TextLabel"
+				textLabel.FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+				textLabel.Text = item.Text or ""
+				textLabel.TextColor3 = Color3.fromRGB(115, 115, 115)
+				textLabel.TextSize = Library.GetScaledTextSize(11)
+				textLabel.TextWrapped = true
+				textLabel.AutomaticSize = Enum.AutomaticSize.XY
+				textLabel.BackgroundTransparency = 1
+				textLabel.Size = Library.UDim2(1, item.Icon and -20 or 0, 0, 0)
+				textLabel.LayoutOrder = 2
+				textLabel.Parent = itemFrame
+				
+				-- Set text alignment based on position
+				if (Paragraph.Position == "Center") then
+					itemLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+					textLabel.TextXAlignment = Enum.TextXAlignment.Center
+				elseif (Paragraph.Position == "Right") then
+					itemLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+					textLabel.TextXAlignment = Enum.TextXAlignment.Right
+				else
+					itemLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+					textLabel.TextXAlignment = Enum.TextXAlignment.Left
+				end
+				
+				descriptionElements[key] = {
+					frame = itemFrame,
+					icon = iconLabel,
+					text = textLabel,
+					data = item
+				}
+				
+				layoutOrder = layoutOrder + 1
+			end
+		end
+	else
+		-- Old string format
+		local descriptionLabel = Instance.new("TextLabel")		
+		descriptionLabel.Name = "DescriptionLabel"
+		descriptionLabel.FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+		descriptionLabel.Text = Paragraph.Description
+		descriptionLabel.TextColor3 = Color3.fromRGB(115, 115, 115)
+		descriptionLabel.TextSize = Library.GetScaledTextSize(11)
+		descriptionLabel.TextWrapped = true
+		descriptionLabel.AutomaticSize = Enum.AutomaticSize.Y
+		descriptionLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		descriptionLabel.BackgroundTransparency = 1
+		descriptionLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+		descriptionLabel.BorderSizePixel = 0
+		descriptionLabel.Size = Library.UDim2(1, 0, 0, 0)
+		descriptionLabel.LayoutOrder = 2
+		descriptionLabel.Parent = contentHolder
+		
+		-- Set text alignment based on position
+		if (Paragraph.Position == "Center") then
+			descriptionLabel.TextXAlignment = Enum.TextXAlignment.Center
+		elseif (Paragraph.Position == "Right") then
+			descriptionLabel.TextXAlignment = Enum.TextXAlignment.Right
+		else 
+			descriptionLabel.TextXAlignment = Enum.TextXAlignment.Left
+		end
+		
+		descriptionElements.descriptionLabel = descriptionLabel
 	end
 
 	function Paragraph.SetTitle(self, newTitle)
@@ -4747,7 +4821,116 @@ function Sections.Paragraph(self, Properties)
 
 	function Paragraph.SetDescription(self, newDescription)
 		self.Description = newDescription
-		descriptionLabel.Text = newDescription
+		
+		-- Clear existing description elements
+		for key, element in pairs(descriptionElements) do
+			if element.frame then
+				element.frame:Destroy()
+			elseif element.Destroy then
+				element:Destroy()
+			end
+		end
+		table.clear(descriptionElements)
+		
+		-- Recreate description based on new format
+		if type(newDescription) == "table" then
+			-- New structured format with icons
+			local layoutOrder = 2
+			for key, item in pairs(newDescription) do
+				if type(item) == "table" and item.Text then
+					local itemFrame = Instance.new("Frame")
+					itemFrame.Name = "ItemFrame_" .. key
+					itemFrame.BackgroundTransparency = 1
+					itemFrame.AutomaticSize = Enum.AutomaticSize.Y
+					itemFrame.Size = Library.UDim2(1, 0, 0, 0)
+					itemFrame.LayoutOrder = layoutOrder
+					itemFrame.Parent = contentHolder
+					
+					local itemLayout = Instance.new("UIListLayout")
+					itemLayout.FillDirection = Enum.FillDirection.Horizontal
+					itemLayout.Padding = UDim.new(0, 6)
+					itemLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+					itemLayout.SortOrder = Enum.SortOrder.LayoutOrder
+					itemLayout.Parent = itemFrame
+					
+					-- Create icon if provided
+					local iconLabel = nil
+					if item.Icon then
+						iconLabel = Instance.new("ImageLabel")
+						iconLabel.Name = "Icon"
+						iconLabel.Image = item.Icon
+						iconLabel.ImageColor3 = Color3.fromRGB(115, 115, 115)
+						iconLabel.BackgroundTransparency = 1
+						iconLabel.Size = UDim2.fromOffset(14, 14)
+						iconLabel.LayoutOrder = 1
+						iconLabel.Parent = itemFrame
+					end
+					
+					-- Create text label
+					local textLabel = Instance.new("TextLabel")
+					textLabel.Name = "TextLabel"
+					textLabel.FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+					textLabel.Text = item.Text or ""
+					textLabel.TextColor3 = Color3.fromRGB(115, 115, 115)
+					textLabel.TextSize = Library.GetScaledTextSize(11)
+					textLabel.TextWrapped = true
+					textLabel.AutomaticSize = Enum.AutomaticSize.XY
+					textLabel.BackgroundTransparency = 1
+					textLabel.Size = Library.UDim2(1, item.Icon and -20 or 0, 0, 0)
+					textLabel.LayoutOrder = 2
+					textLabel.Parent = itemFrame
+					
+					-- Set text alignment based on position
+					if (Paragraph.Position == "Center") then
+						itemLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+						textLabel.TextXAlignment = Enum.TextXAlignment.Center
+					elseif (Paragraph.Position == "Right") then
+						itemLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+						textLabel.TextXAlignment = Enum.TextXAlignment.Right
+					else
+						itemLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+						textLabel.TextXAlignment = Enum.TextXAlignment.Left
+					end
+					
+					descriptionElements[key] = {
+						frame = itemFrame,
+						icon = iconLabel,
+						text = textLabel,
+						data = item
+					}
+					
+					layoutOrder = layoutOrder + 1
+				end
+			end
+		else
+			-- Old string format
+			local descriptionLabel = Instance.new("TextLabel")		
+			descriptionLabel.Name = "DescriptionLabel"
+			descriptionLabel.FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.Regular, Enum.FontStyle.Normal)
+			descriptionLabel.Text = newDescription
+			descriptionLabel.TextColor3 = Color3.fromRGB(115, 115, 115)
+			descriptionLabel.TextSize = Library.GetScaledTextSize(11)
+			descriptionLabel.TextWrapped = true
+			descriptionLabel.AutomaticSize = Enum.AutomaticSize.Y
+			descriptionLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+			descriptionLabel.BackgroundTransparency = 1
+			descriptionLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+			descriptionLabel.BorderSizePixel = 0
+			descriptionLabel.Size = Library.UDim2(1, 0, 0, 0)
+			descriptionLabel.LayoutOrder = 2
+			descriptionLabel.Parent = contentHolder
+			
+			-- Set text alignment based on position
+			if (Paragraph.Position == "Center") then
+				descriptionLabel.TextXAlignment = Enum.TextXAlignment.Center
+			elseif (Paragraph.Position == "Right") then
+				descriptionLabel.TextXAlignment = Enum.TextXAlignment.Right
+			else 
+				descriptionLabel.TextXAlignment = Enum.TextXAlignment.Left
+			end
+			
+			descriptionElements.descriptionLabel = descriptionLabel
+		end
 	end
 
 	function Paragraph.SetPosition(self, newPosition)
@@ -4759,21 +4942,52 @@ function Sections.Paragraph(self, Properties)
 			contentHolder.Size = Library.UDim2(1, -7, 0, 0)
 			uIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
 			titleLabel.TextXAlignment = Enum.TextXAlignment.Right
-			descriptionLabel.TextXAlignment = Enum.TextXAlignment.Right
 		elseif (newPosition == "Center") then
 			contentHolder.AnchorPoint = Vector2.new(0.5, 0)
 			contentHolder.Position = UDim2.new(0.5, 0, 0, 0)
 			contentHolder.Size = Library.UDim2(1, -14, 0, 0)
 			uIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
 			titleLabel.TextXAlignment = Enum.TextXAlignment.Center
-			descriptionLabel.TextXAlignment = Enum.TextXAlignment.Center
 		else 
 			contentHolder.AnchorPoint = Vector2.new(0, 0)
 			contentHolder.Position = UDim2.new(0, 8, 0, 0)
 			contentHolder.Size = Library.UDim2(1, -16, 0, 0)
 			uIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
 			titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-			descriptionLabel.TextXAlignment = Enum.TextXAlignment.Left
+		end
+		
+		-- Update description alignment based on format
+		if type(self.Description) == "table" then
+			-- Structured format - update each item's alignment
+			for key, element in pairs(descriptionElements) do
+				if element.frame and element.text then
+					local itemLayout = element.frame:FindFirstChild("UIListLayout")
+					if itemLayout then
+						if (newPosition == "Center") then
+							itemLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+							element.text.TextXAlignment = Enum.TextXAlignment.Center
+						elseif (newPosition == "Right") then
+							itemLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+							element.text.TextXAlignment = Enum.TextXAlignment.Right
+						else
+							itemLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+							element.text.TextXAlignment = Enum.TextXAlignment.Left
+						end
+					end
+				end
+			end
+		else
+			-- Old string format - update single description label
+			local descriptionLabel = descriptionElements.descriptionLabel
+			if descriptionLabel then
+				if (newPosition == "Center") then
+					descriptionLabel.TextXAlignment = Enum.TextXAlignment.Center
+				elseif (newPosition == "Right") then
+					descriptionLabel.TextXAlignment = Enum.TextXAlignment.Right
+				else 
+					descriptionLabel.TextXAlignment = Enum.TextXAlignment.Left
+				end
+			end
 		end
 	end
 	
