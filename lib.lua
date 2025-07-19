@@ -172,12 +172,28 @@ function Library.CheckDependencies(element)
 	for flag, requiredValue in pairs(element.Depends) do
 		local currentValue = Library.Flags[flag]
 		
+		-- Debug logging
+		if flag == "FavouriteAutoFavouriteOption" then
+			print("Debug - Flag:", flag)
+			print("Debug - Current Value:", currentValue, type(currentValue))
+			if type(currentValue) == "table" then
+				print("Debug - Table contents:")
+				for i, v in ipairs(currentValue) do
+					print("  [" .. i .. "] =", v)
+				end
+			end
+			print("Debug - Required Value:", requiredValue, type(requiredValue))
+		end
+		
 		-- Handle different types of dependency checks
 		if type(requiredValue) == "table" then
 			-- Handle table-based requirements
 			if requiredValue.contains then
 				-- Check if currentValue (table) contains any of the required values
 				if type(currentValue) ~= "table" then
+					if flag == "FavouriteAutoFavouriteOption" then
+						print("Debug - Current value is not a table, returning false")
+					end
 					return false
 				end
 				
@@ -193,7 +209,14 @@ function Library.CheckDependencies(element)
 				end
 				
 				if not hasRequired then
+					if flag == "FavouriteAutoFavouriteOption" then
+						print("Debug - Required value not found in table, returning false")
+					end
 					return false
+				else
+					if flag == "FavouriteAutoFavouriteOption" then
+						print("Debug - Required value found in table, continuing")
+					end
 				end
 			elseif requiredValue.containsAll then
 				-- Check if currentValue (table) contains all of the required values
@@ -240,6 +263,9 @@ function Library.UpdateElementVisibility(element)
 	
 	local shouldShow = Library.CheckDependencies(element)
 	if element.SetVisible then
+		if element.Flag and (element.Flag == "FavouriteWeight" or element.Flag == "FavouritePrice") then
+			print("Debug - Updating visibility for", element.Flag, "shouldShow:", shouldShow)
+		end
 		element:SetVisible(shouldShow)
 	end
 end
