@@ -2585,11 +2585,11 @@ function Library.Window(self, Options)
             -- Search icon
             local searchIcon = Instance.new("ImageLabel")
             searchIcon.Name = "SearchIcon"
-            searchIcon.Image = "rbxassetid://8560362020"
+            searchIcon.Image = "rbxassetid://12187365364"
             searchIcon.ImageColor3 = Color3.fromRGB(115, 115, 115)
             searchIcon.AnchorPoint = Vector2.new(1, 0.5)
             searchIcon.BackgroundTransparency = 1
-            searchIcon.Position = UDim2.new(1, -4, 0.5, 0)
+            searchIcon.Position = UDim2.new(1, -2, 0.5, 0)
             searchIcon.Size = UDim2.fromOffset(12, 12)
             searchIcon.ZIndex = Dropdown.ZIndex + 6
             searchIcon.Parent = searchInput
@@ -2597,7 +2597,7 @@ function Library.Window(self, Options)
             -- Add padding to prevent text overlap with icon
             local searchPadding = Instance.new("UIPadding")
             searchPadding.PaddingLeft = UDim.new(0, 6)
-            searchPadding.PaddingRight = UDim.new(0, 20)
+            searchPadding.PaddingRight = UDim.new(0, 16)
             searchPadding.Parent = searchInput
         end
 
