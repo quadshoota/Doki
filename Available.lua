@@ -3,7 +3,7 @@ local Available = {
 "browser", "browsers", "calender", "cloudfile",
 "codeblock", "delete", "download", "downloadcloud",
 "gear", "upload", "uploadtocloud", "archive",
-"checkmark", "copy", "refresh", "user", "date", "version", "Egg", "Dog", "Tree"
+"checkmark", "copy", "refresh", "user", "date", "version", "Egg", "Dog", "Tree", "Money"
 }
  
 return Available
