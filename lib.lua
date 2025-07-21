@@ -3810,6 +3810,22 @@ function Library.Window(self, Options)
 		end)
 
 		function List.Refresh(self, newOptions)
+			-- Store previous selections before clearing
+			local previousSelections = {}
+			if (List.Max) then
+				-- Multi-selection: copy the array
+				if (chosenValue and type(chosenValue) == "table") then
+					for _, value in ipairs(chosenValue) do
+						table.insert(previousSelections, value)
+					end
+				end
+			else
+				-- Single selection: store the value
+				if (chosenValue) then
+					table.insert(previousSelections, chosenValue)
+				end
+			end
+
 			for _, instData in pairs(List.OptionInsts) do
 				instData.frame:Destroy()
 			end
@@ -3832,35 +3848,67 @@ function Library.Window(self, Options)
 			listContainer.Size = Library.UDim2(1, -14, 0, newHeight)
 			listFrame.Size = Library.UDim2(1, 0, 0, math.max(List.MinHeight + 25, newHeight + 25))
 
-			if (List.Default) then
+			-- Restore previous selections that are still available
+			local hasValidPreviousSelection = false
+			if (#previousSelections > 0) then
 				if (List.Max) then
 					chosenValue = {}
-					local defaultsToApply = type(List.Default) == "table" and List.Default or { List.Default }
-					for _, defOpt in ipairs(defaultsToApply) do
-						if (table.find(List.Options, defOpt) and #chosenValue < List.Max) then
-							table.insert(chosenValue, defOpt)
-							if (List.OptionInsts[defOpt]) then
-								setOptionSelectedLook(List.OptionInsts[defOpt], true)
+					for _, prevSelection in ipairs(previousSelections) do
+						if (table.find(List.Options, prevSelection) and #chosenValue < List.Max) then
+							table.insert(chosenValue, prevSelection)
+							if (List.OptionInsts[prevSelection]) then
+								setOptionSelectedLook(List.OptionInsts[prevSelection], true)
 							end
+							hasValidPreviousSelection = true
 						end
 					end
 				else
-					if (table.find(List.Options, List.Default)) then
-						chosenValue = List.Default
-						if (List.OptionInsts[chosenValue]) then
-							setOptionSelectedLook(List.OptionInsts[chosenValue], true)
-						end
-					else
-						chosenValue = #List.Options > 0 and List.Options[1] or nil
-						if (chosenValue and List.OptionInsts[chosenValue]) then
-							setOptionSelectedLook(List.OptionInsts[chosenValue], true)
+					-- Single selection: use the first valid previous selection
+					for _, prevSelection in ipairs(previousSelections) do
+						if (table.find(List.Options, prevSelection)) then
+							chosenValue = prevSelection
+							if (List.OptionInsts[chosenValue]) then
+								setOptionSelectedLook(List.OptionInsts[chosenValue], true)
+							end
+							hasValidPreviousSelection = true
+							break
 						end
 					end
 				end
-			elseif (#List.Options > 0 and not List.Max) then
-				chosenValue = List.Options[1]
-				if (List.OptionInsts[chosenValue]) then
-					setOptionSelectedLook(List.OptionInsts[chosenValue], true)
+			end
+
+			-- Only apply defaults if no previous selections were restored
+			if (not hasValidPreviousSelection) then
+				if (List.Default) then
+					if (List.Max) then
+						chosenValue = {}
+						local defaultsToApply = type(List.Default) == "table" and List.Default or { List.Default }
+						for _, defOpt in ipairs(defaultsToApply) do
+							if (table.find(List.Options, defOpt) and #chosenValue < List.Max) then
+								table.insert(chosenValue, defOpt)
+								if (List.OptionInsts[defOpt]) then
+									setOptionSelectedLook(List.OptionInsts[defOpt], true)
+								end
+							end
+						end
+					else
+						if (table.find(List.Options, List.Default)) then
+							chosenValue = List.Default
+							if (List.OptionInsts[chosenValue]) then
+								setOptionSelectedLook(List.OptionInsts[chosenValue], true)
+							end
+						else
+							chosenValue = #List.Options > 0 and List.Options[1] or nil
+							if (chosenValue and List.OptionInsts[chosenValue]) then
+								setOptionSelectedLook(List.OptionInsts[chosenValue], true)
+							end
+						end
+					end
+				elseif (#List.Options > 0 and not List.Max) then
+					chosenValue = List.Options[1]
+					if (List.OptionInsts[chosenValue]) then
+						setOptionSelectedLook(List.OptionInsts[chosenValue], true)
+					end
 				end
 			end
 
