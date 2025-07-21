@@ -883,10 +883,10 @@ function Library.Window(self, Options)
 		return x == x
 	end
 
-	local _continue = IsNotNaN(workspace.CurrentCamera:ScreenPointToRay(0, 0).Origin.x)
-	while (not _continue) do
+	local dothat = IsNotNaN(workspace.CurrentCamera:ScreenPointToRay(0, 0).Origin.x)
+	while (not dothat) do
 		RunService.RenderStepped:wait()
-		_continue = IsNotNaN(workspace.CurrentCamera:ScreenPointToRay(0, 0).Origin.x)
+		dothat = IsNotNaN(workspace.CurrentCamera:ScreenPointToRay(0, 0).Origin.x)
 	end
 
 	local DrawQuad
