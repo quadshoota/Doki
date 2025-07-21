@@ -490,6 +490,7 @@ function Library.Window(self, Options)
 		Tabs = {},
 		Name = Options.Name or "lunacy.solutions",
         Key = Options.Key,
+        Logo = Options.Logo,
 		Sections = {},
 		Elements = {},
 		Dragging = { false, UDim2.new(0, 0, 0, 0) },
@@ -828,8 +829,39 @@ function Library.Window(self, Options)
 	uIListLayout2.VerticalAlignment = Enum.VerticalAlignment.Center
 	uIListLayout2.Parent = buttons
 
+	-- Create title container
+	local titleContainer = Instance.new("Frame")
+	titleContainer.Name = "TitleContainer"
+	titleContainer.BackgroundTransparency = 1
+	titleContainer.Size = Library.UDim2(0, 157, 1, 0)
+	titleContainer.Position = UDim2.fromScale(0.241, -3.18E-2)
+	
+	local titleLayout = Instance.new("UIListLayout")
+	titleLayout.FillDirection = Enum.FillDirection.Horizontal
+	titleLayout.SortOrder = Enum.SortOrder.LayoutOrder
+	titleLayout.Padding = UDim.new(0, 8)
+	titleLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+	titleLayout.Parent = titleContainer
+	
+	-- Create logo if provided
+	if Window.Logo then
+		local logoImage = Instance.new("ImageLabel")
+		logoImage.Name = "Logo"
+		logoImage.Image = Window.Logo
+		logoImage.BackgroundTransparency = 1
+		logoImage.Size = Library.UDim2(0, 24, 0, 24)
+		logoImage.LayoutOrder = 1
+		logoImage.Parent = titleContainer
+		
+		-- Add corner radius to logo
+		local logoCorner = Instance.new("UICorner")
+		logoCorner.CornerRadius = UDim.new(0, 4)
+		logoCorner.Parent = logoImage
+	end
+	
+	-- Create text label
 	local textLabel = Instance.new("TextLabel")	
-    textLabel.Name = "asdsadas"
+    textLabel.Name = "TitleText"
 	textLabel.FontFace = Font.new("rbxassetid://12187365364", Enum.FontWeight.Medium, Enum.FontStyle.Normal)
 	textLabel.Text = Window.Name
 	textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -839,9 +871,11 @@ function Library.Window(self, Options)
 	textLabel.BackgroundTransparency = 1
 	textLabel.BorderColor3 = Color3.fromRGB(27, 42, 53)
 	textLabel.BorderSizePixel = 0
-	textLabel.Position = UDim2.fromScale(0.241, -3.18E-2)
-	textLabel.Size = Library.UDim2(0, 157, 1, 0)
-	textLabel.Parent = buttons
+	textLabel.Size = UDim2.fromScale(1, 1)
+	textLabel.LayoutOrder = 2
+	textLabel.Parent = titleContainer
+	
+	titleContainer.Parent = buttons
 
 	buttons.Parent = buttonsholder
 	buttonsholder.Parent = anothersidebarholder
