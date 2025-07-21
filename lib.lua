@@ -3710,7 +3710,7 @@ function Library.Window(self, Options)
 		listFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		listFrame.BorderSizePixel = 0
 		listFrame.ZIndex = List.ZIndex
-		listFrame.Size = Library.UDim2(1, 0, 0, math.max(List.MinHeight + 25, math.min(25 + (#List.Options * 22) + 10, List.MaxHeight + 25)))
+		listFrame.Size = Library.UDim2(1, 0, 0, 25)
 
 		local listName = Instance.new("TextLabel")		
 		listName.Name = "ListName"
@@ -3725,7 +3725,7 @@ function Library.Window(self, Options)
 		listName.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		listName.BorderSizePixel = 0
 		listName.Position = UDim2.new(0, 8, 0, 0)
-		listName.Size = Library.UDim2(1, -16, 0, 20)
+		listName.Size = Library.UDim2(1, -16, 1, 0)
 		listName.Parent = listFrame
 
 		local listContainer = Instance.new("Frame")		
@@ -3735,8 +3735,8 @@ function Library.Window(self, Options)
 		listContainer.BackgroundTransparency = 0.3
 		listContainer.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		listContainer.BorderSizePixel = 0
-		listContainer.Position = UDim2.new(0.5, 0, 0, 22)
-		listContainer.Size = Library.UDim2(1, -14, 0, math.max(List.MinHeight, math.min(#List.Options * 22 + 4, List.MaxHeight)))
+		listContainer.Position = UDim2.new(0.5, 0, 0, 0)
+		listContainer.Size = Library.UDim2(1, -14, 0, 0)
 		listContainer.ZIndex = List.ZIndex
 		listContainer.ClipsDescendants = true
 		listContainer.Parent = listFrame
@@ -3926,11 +3926,9 @@ function Library.Window(self, Options)
 				createOptionElement(optionName)
 			end
 
-			-- Update container size
-			local optionCount = #List.Options
-			local newHeight = math.max(List.MinHeight, math.min(optionCount * 22 + 4, List.MaxHeight))
-			listContainer.Size = Library.UDim2(1, -14, 0, newHeight)
-			listFrame.Size = Library.UDim2(1, 0, 0, math.max(List.MinHeight + 25, newHeight + 25))
+			-- Keep fixed size for consistency
+			listContainer.Size = Library.UDim2(1, -14, 0, 0)
+			listFrame.Size = Library.UDim2(1, 0, 0, 25)
 
 			if (List.Default) then
 				if (List.Max) then
@@ -4054,7 +4052,7 @@ function Library.Window(self, Options)
         tabButton.BackgroundTransparency = 1
         tabButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
         tabButton.BorderSizePixel = 0
-        tabButton.Size = Library.UDim2(1, 0, 0, 21)
+        tabButton.Size = Library.UDim2(1, 0, 0, 25)
 
         local thebuttonwow = Instance.new("TextButton")		
 		thebuttonwow.Name = "thebuttonwow"
@@ -4376,7 +4374,7 @@ function Library.Window(self, Options)
 		separatorFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 		separatorFrame.BackgroundTransparency = 1
 		separatorFrame.BorderSizePixel = 0
-		separatorFrame.Size = Library.UDim2(1, 0, 0, 1 + (Separator.Margin * 2))
+		separatorFrame.Size = Library.UDim2(1, 0, 0, 25)
 
 		local separatorLine = Instance.new("Frame")
 		separatorLine.Name = "SeparatorLine"
@@ -4392,7 +4390,7 @@ function Library.Window(self, Options)
 
 		-- Optional label for named separators
 		if (Separator.Name and Separator.Name ~= "") then
-			separatorFrame.Size = Library.UDim2(1, 0, 0, 20 + (Separator.Margin * 2))
+			separatorFrame.Size = Library.UDim2(1, 0, 0, 25)
 			
 			local separatorLabel = Instance.new("TextLabel")
 			separatorLabel.Name = "SeparatorLabel"
@@ -4404,12 +4402,12 @@ function Library.Window(self, Options)
 			separatorLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 			separatorLabel.BackgroundTransparency = 1
 			separatorLabel.BorderSizePixel = 0
-			separatorLabel.Position = UDim2.new(0, Separator.Margin, 0, Separator.Margin)
+			separatorLabel.Position = UDim2.new(0, Separator.Margin, 0, 6)
 			separatorLabel.Size = Library.UDim2(1, -(Separator.Margin * 2), 0, 12)
 			separatorLabel.Parent = separatorFrame
 
 			-- Adjust line position to be below text
-			separatorLine.Position = UDim2.new(0.5, 0, 0, Separator.Margin + 14)
+			separatorLine.Position = UDim2.new(0.5, 0, 0, 20)
 			separatorLine.AnchorPoint = Vector2.new(0.5, 0)
 		end
 
