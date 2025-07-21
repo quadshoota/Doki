@@ -1568,15 +1568,15 @@ function Library.Window(self, Options)
 
 		local uIListLayout = Instance.new("UIListLayout")		
 		uIListLayout.Name = "UIListLayout"
-		uIListLayout.Padding = UDim.new(0, 4)
+		uIListLayout.Padding = UDim.new(0, 8)
 		uIListLayout.FillDirection = Enum.FillDirection.Vertical
 		uIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 		uIListLayout.Parent = section
 
 		local uIPadding = Instance.new("UIPadding")		
 		uIPadding.Name = "UIPadding"
-		uIPadding.PaddingBottom = UDim.new(0, 4)
-		uIPadding.PaddingTop = UDim.new(0, 2)
+		uIPadding.PaddingBottom = UDim.new(0, 12)
+		uIPadding.PaddingTop = UDim.new(0, 5)
 		uIPadding.Parent = section
 
 		local aholder = Instance.new("Frame", section)
@@ -1597,17 +1597,17 @@ function Library.Window(self, Options)
 
 		local uIListLayoutA = Instance.new("UIListLayout")		
 		uIListLayoutA.Name = "UIListLayout"
-		uIListLayoutA.Padding = UDim.new(0, 4)
+		uIListLayoutA.Padding = UDim.new(0, 8)
 		uIListLayoutA.HorizontalFlex = Enum.UIFlexAlignment.Fill
 		uIListLayoutA.SortOrder = Enum.SortOrder.LayoutOrder
 		uIListLayoutA.Parent = aholder
 
 		local uIPadding = Instance.new("UIPadding", aholder)
 		uIPadding.Name = "UIPadding"
-		uIPadding.PaddingBottom = UDim.new(0, 1)
-		uIPadding.PaddingLeft = UDim.new(0, 8)
-		uIPadding.PaddingRight = UDim.new(0, 8)
-		uIPadding.PaddingTop = UDim.new(0, 1)
+		uIPadding.PaddingBottom = UDim.new(0, 3)
+		uIPadding.PaddingLeft = UDim.new(0, 3)
+		uIPadding.PaddingRight = UDim.new(0, 3)
+		uIPadding.PaddingTop = UDim.new(0, 3)
 
 		Section.Elements.SectionContent = aholder
 
@@ -1869,13 +1869,6 @@ function Library.Window(self, Options)
 		uIListLayoutA.Padding = UDim.new(0, 4)
 		uIListLayoutA.SortOrder = Enum.SortOrder.LayoutOrder
 		uIListLayoutA.Parent = aholder
-
-		local uIPadding = Instance.new("UIPadding", aholder)
-		uIPadding.Name = "UIPadding"
-		uIPadding.PaddingBottom = UDim.new(0, 1)
-		uIPadding.PaddingLeft = UDim.new(0, 8)
-		uIPadding.PaddingRight = UDim.new(0, 8)
-		uIPadding.PaddingTop = UDim.new(0, 1)
 
 		local subsectionObj = {
 			Elements = { SectionContent = aholder },
@@ -2187,7 +2180,7 @@ function Library.Window(self, Options)
 		toggleName.BackgroundTransparency = 1
 		toggleName.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		toggleName.BorderSizePixel = 0
-		toggleName.Position = UDim2.new(0, 0, 0.5, 0)
+		toggleName.Position = UDim2.new(0, 8, 0.5, 0)
 		toggleName.Size = Library.UDim2(1, -52, 1, 0)
 		toggleName.Parent = toggleElement
 
@@ -2569,7 +2562,7 @@ function Library.Window(self, Options)
 		slidername.BackgroundTransparency = 1
 		slidername.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		slidername.BorderSizePixel = 0
-		slidername.Position = UDim2.fromOffset(0, 0)
+		slidername.Position = UDim2.fromOffset(8, 0)
 		slidername.Size = Library.UDim2(1, -52, 1, 0)
 		slidername.Parent = textHolder
 
@@ -2817,8 +2810,8 @@ function Library.Window(self, Options)
 		dropdownname.BackgroundTransparency = 1
 		dropdownname.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		dropdownname.BorderSizePixel = 0
-		dropdownname.Position = UDim2.new(0, 0, 0.5, 0)
-		dropdownname.Size = Library.UDim2(1, -4, 0, 15)
+		dropdownname.Position = UDim2.new(0, 8, 0.5, 0)
+		dropdownname.Size = Library.UDim2(1, -12, 0, 15)
 		dropdownname.Parent = dropdown
 
 		local dropdowncurrentframe = Instance.new("TextButton")		
@@ -3102,100 +3095,27 @@ function Library.Window(self, Options)
                 end
             end)
 
-            -- Add focus animation for search input
-            searchInput.Focused:Connect(function()
-                if searchInput and searchIcon then
-                    local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-                    TweenService:Create(searchInput, tweenInfo, {
-                        BackgroundTransparency = 0.1,
-                    }):Play()
-                    
-                    -- Highlight search icon when focused
-                    TweenService:Create(searchIcon, tweenInfo, {
-                        ImageColor3 = Color3.fromRGB(255, 255, 255),
-                    }):Play()
-                end
-            end)
-
             searchInput.FocusLost:Connect(function()
-                if searchInput and searchIcon then
-                    local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-                    TweenService:Create(searchInput, tweenInfo, {
-                        BackgroundTransparency = 0.2,
-                    }):Play()
-                    
-                    -- Unhighlight search icon when unfocused
-                    TweenService:Create(searchIcon, tweenInfo, {
-                        ImageColor3 = Color3.fromRGB(80, 80, 75),
-                    }):Play()
-                end
-                
                 -- Keep focus when dropdown is open
                 if (Dropdown.isOpen) then
-                    task.spawn(function()
-                        task.wait(0.1)
-                        if (Dropdown.isOpen and searchInput) then
-                            searchInput:CaptureFocus()
-                        end
-                    end)
+                    task.wait(0.1)
+                    if (Dropdown.isOpen) then
+                        searchInput:CaptureFocus()
+                    end
                 end
             end)
 
-            -- Add hover effects for search input and icon
-            searchInput.MouseEnter:Connect(function()
-                if searchIcon and not searchInput:IsFocused() then
-                    local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-                    TweenService:Create(searchIcon, tweenInfo, {
-                        ImageColor3 = Color3.fromRGB(120, 120, 115),
-                    }):Play()
-                end
-            end)
-
-            searchInput.MouseLeave:Connect(function()
-                if searchIcon and searchInput and not searchInput:IsFocused() then
-                    local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-                    TweenService:Create(searchIcon, tweenInfo, {
-                        ImageColor3 = Color3.fromRGB(80, 80, 75),
-                    }):Play()
-                end
-            end)
-
-            -- Add click detection for search input
-            local function highlightSearchOnClick()
-                if searchIcon and searchInput then
-                    local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-                    TweenService:Create(searchIcon, tweenInfo, {
-                        ImageColor3 = Color3.fromRGB(255, 255, 255),
-                    }):Play()
-                    TweenService:Create(searchInput, tweenInfo, {
-                        BackgroundTransparency = 0.05,
-                    }):Play()
-                    
-                    task.spawn(function()
-                        task.wait(0.1)
-                        if searchInput then
-                            TweenService:Create(searchInput, tweenInfo, {
-                                BackgroundTransparency = 0.1,
-                            }):Play()
-                        end
-                    end)
-                end
-            end
-
-            searchInput.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                    highlightSearchOnClick()
-                end
-            end)
-
-            -- Also trigger on GuiState change when search becomes active
-            searchInput:GetPropertyChangedSignal("Text"):Connect(function()
-                if searchInput:IsFocused() and searchIcon then
-                    local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-                    TweenService:Create(searchIcon, tweenInfo, {
-                        ImageColor3 = Color3.fromRGB(255, 255, 255),
-                    }):Play()
-                end
+            -- Add click animation for search input
+            searchInput.MouseButton1Click:Connect(function()
+                local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+                TweenService:Create(searchInput, tweenInfo, {
+                    BackgroundTransparency = 0.1,
+                }):Play()
+                
+                task.wait(0.15)
+                TweenService:Create(searchInput, tweenInfo, {
+                    BackgroundTransparency = 0.2,
+                }):Play()
             end)
         end
 
@@ -3385,22 +3305,22 @@ function Library.Window(self, Options)
             if (Dropdown.isOpen) then
                 Library.CurrentOpenDropdown = Dropdown
                 -- Increase ZIndex to render above all other elements including lists
-                dropdownList.ZIndex = 60000
-                optionHolder.ZIndex = 60002
+                dropdownList.ZIndex = 50000
+                optionHolder.ZIndex = 50002
                 if (Dropdown.searchInput) then
-                    Dropdown.searchInput.ZIndex = 60005
+                    Dropdown.searchInput.ZIndex = 50005
                 end
                 if (Dropdown.searchIcon) then
-                    Dropdown.searchIcon.ZIndex = 60006
+                    Dropdown.searchIcon.ZIndex = 50006
                 end
                 
                 -- Update all option button ZIndex values to ensure they render on top
                 for _, optionData in pairs(Dropdown.OptionInsts) do
                     if optionData.button then
-                        optionData.button.ZIndex = 60010
+                        optionData.button.ZIndex = 50010
                     end
                     if optionData.frame then
-                        optionData.frame.ZIndex = 60003
+                        optionData.frame.ZIndex = 50003
                     end
                 end
                 -- Focus search input when opening
@@ -3601,7 +3521,7 @@ function Library.Window(self, Options)
                 -- Calculate width based on content
                 local maxWidth = 120
                 for optionName, _ in pairs(Dropdown.OptionInsts) do
-                    local textSize = game:GetService("TextService"):GetTextSize(optionName, 12, Enum.Font.SourceSans, Vector2.new(1000, 20))
+                    local textSize = TextService:GetTextSize(optionName, 12, Font.new("rbxassetid://12187365364"), Vector2.new(1000, 20))
                     maxWidth = math.max(maxWidth, textSize.X + 40)
                 end
                 
@@ -3710,7 +3630,7 @@ function Library.Window(self, Options)
 		listFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		listFrame.BorderSizePixel = 0
 		listFrame.ZIndex = List.ZIndex
-		listFrame.Size = Library.UDim2(1, 0, 0, 25)
+		listFrame.Size = Library.UDim2(1, 0, 0, math.max(List.MinHeight + 25, math.min(25 + (#List.Options * 22) + 10, List.MaxHeight + 25)))
 
 		local listName = Instance.new("TextLabel")		
 		listName.Name = "ListName"
@@ -3725,7 +3645,7 @@ function Library.Window(self, Options)
 		listName.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		listName.BorderSizePixel = 0
 		listName.Position = UDim2.new(0, 8, 0, 0)
-		listName.Size = Library.UDim2(1, -16, 1, 0)
+		listName.Size = Library.UDim2(1, -16, 0, 20)
 		listName.Parent = listFrame
 
 		local listContainer = Instance.new("Frame")		
@@ -3735,8 +3655,8 @@ function Library.Window(self, Options)
 		listContainer.BackgroundTransparency = 0.3
 		listContainer.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		listContainer.BorderSizePixel = 0
-		listContainer.Position = UDim2.new(0.5, 0, 0, 0)
-		listContainer.Size = Library.UDim2(1, -14, 0, 0)
+		listContainer.Position = UDim2.new(0.5, 0, 0, 22)
+		listContainer.Size = Library.UDim2(1, -14, 0, math.max(List.MinHeight, math.min(#List.Options * 22 + 4, List.MaxHeight)))
 		listContainer.ZIndex = List.ZIndex
 		listContainer.ClipsDescendants = true
 		listContainer.Parent = listFrame
@@ -3926,9 +3846,11 @@ function Library.Window(self, Options)
 				createOptionElement(optionName)
 			end
 
-			-- Keep fixed size for consistency
-			listContainer.Size = Library.UDim2(1, -14, 0, 0)
-			listFrame.Size = Library.UDim2(1, 0, 0, 25)
+			-- Update container size
+			local optionCount = #List.Options
+			local newHeight = math.max(List.MinHeight, math.min(optionCount * 22 + 4, List.MaxHeight))
+			listContainer.Size = Library.UDim2(1, -14, 0, newHeight)
+			listFrame.Size = Library.UDim2(1, 0, 0, math.max(List.MinHeight + 25, newHeight + 25))
 
 			if (List.Default) then
 				if (List.Max) then
@@ -4052,7 +3974,7 @@ function Library.Window(self, Options)
         tabButton.BackgroundTransparency = 1
         tabButton.BorderColor3 = Color3.fromRGB(0, 0, 0)
         tabButton.BorderSizePixel = 0
-        tabButton.Size = Library.UDim2(1, 0, 0, 25)
+        tabButton.Size = Library.UDim2(1, 0, 0, 21)
 
         local thebuttonwow = Instance.new("TextButton")		
 		thebuttonwow.Name = "thebuttonwow"
@@ -4176,8 +4098,8 @@ function Library.Window(self, Options)
 		textboxname.BackgroundTransparency = 1
 		textboxname.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		textboxname.BorderSizePixel = 0
-		textboxname.Position = UDim2.new(0, 0, 0.5, 0)
-		textboxname.Size = Library.UDim2(1, -8, 0, 15)
+		textboxname.Position = UDim2.new(0, 8, 0.5, 0)
+		textboxname.Size = Library.UDim2(1, -12, 0, 15)
 		textboxname.Parent = textox
 
 		local textboxcurrentframe = Instance.new("Frame")		
@@ -4374,7 +4296,7 @@ function Library.Window(self, Options)
 		separatorFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 		separatorFrame.BackgroundTransparency = 1
 		separatorFrame.BorderSizePixel = 0
-		separatorFrame.Size = Library.UDim2(1, 0, 0, 25)
+		separatorFrame.Size = Library.UDim2(1, 0, 0, 1 + (Separator.Margin * 2))
 
 		local separatorLine = Instance.new("Frame")
 		separatorLine.Name = "SeparatorLine"
@@ -4390,7 +4312,7 @@ function Library.Window(self, Options)
 
 		-- Optional label for named separators
 		if (Separator.Name and Separator.Name ~= "") then
-			separatorFrame.Size = Library.UDim2(1, 0, 0, 25)
+			separatorFrame.Size = Library.UDim2(1, 0, 0, 20 + (Separator.Margin * 2))
 			
 			local separatorLabel = Instance.new("TextLabel")
 			separatorLabel.Name = "SeparatorLabel"
@@ -4402,12 +4324,12 @@ function Library.Window(self, Options)
 			separatorLabel.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 			separatorLabel.BackgroundTransparency = 1
 			separatorLabel.BorderSizePixel = 0
-			separatorLabel.Position = UDim2.new(0, Separator.Margin, 0, 6)
+			separatorLabel.Position = UDim2.new(0, Separator.Margin, 0, Separator.Margin)
 			separatorLabel.Size = Library.UDim2(1, -(Separator.Margin * 2), 0, 12)
 			separatorLabel.Parent = separatorFrame
 
 			-- Adjust line position to be below text
-			separatorLine.Position = UDim2.new(0.5, 0, 0, 20)
+			separatorLine.Position = UDim2.new(0.5, 0, 0, Separator.Margin + 14)
 			separatorLine.AnchorPoint = Vector2.new(0.5, 0)
 		end
 
@@ -4467,8 +4389,8 @@ function Library.Window(self, Options)
 		textboxname.BackgroundTransparency = 1
 		textboxname.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		textboxname.BorderSizePixel = 0
-		textboxname.Position = UDim2.new(0, 0, 0.5, 0)
-		textboxname.Size = Library.UDim2(1, -8, 0, 15)
+		textboxname.Position = UDim2.new(0, 8, 0.5, 0)
+		textboxname.Size = Library.UDim2(1, -12, 0, 15)
 		textboxname.Parent = keybindframE
 
 		local keybindcurrentframe = Instance.new("Frame")		
@@ -4769,8 +4691,8 @@ function Library.Window(self, Options)
 		colorpickername.BackgroundTransparency = 1
 		colorpickername.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		colorpickername.BorderSizePixel = 0
-		colorpickername.Position = UDim2.new(0, 0, 0.5, 0)
-		colorpickername.Size = Library.UDim2(1, -8, 0, 15)
+		colorpickername.Position = UDim2.new(0, 8, 0.5, 0)
+		colorpickername.Size = Library.UDim2(1, -12, 0, 15)
 		colorpickername.Parent = colorpickerframe
 
 		local box = Instance.new("TextButton")		
