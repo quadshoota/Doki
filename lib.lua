@@ -1568,15 +1568,15 @@ function Library.Window(self, Options)
 
 		local uIListLayout = Instance.new("UIListLayout")		
 		uIListLayout.Name = "UIListLayout"
-		uIListLayout.Padding = UDim.new(0, 8)
+		uIListLayout.Padding = UDim.new(0, 4)
 		uIListLayout.FillDirection = Enum.FillDirection.Vertical
 		uIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 		uIListLayout.Parent = section
 
 		local uIPadding = Instance.new("UIPadding")		
 		uIPadding.Name = "UIPadding"
-		uIPadding.PaddingBottom = UDim.new(0, 12)
-		uIPadding.PaddingTop = UDim.new(0, 5)
+		uIPadding.PaddingBottom = UDim.new(0, 4)
+		uIPadding.PaddingTop = UDim.new(0, 2)
 		uIPadding.Parent = section
 
 		local aholder = Instance.new("Frame", section)
@@ -1597,17 +1597,17 @@ function Library.Window(self, Options)
 
 		local uIListLayoutA = Instance.new("UIListLayout")		
 		uIListLayoutA.Name = "UIListLayout"
-		uIListLayoutA.Padding = UDim.new(0, 8)
+		uIListLayoutA.Padding = UDim.new(0, 4)
 		uIListLayoutA.HorizontalFlex = Enum.UIFlexAlignment.Fill
 		uIListLayoutA.SortOrder = Enum.SortOrder.LayoutOrder
 		uIListLayoutA.Parent = aholder
 
 		local uIPadding = Instance.new("UIPadding", aholder)
 		uIPadding.Name = "UIPadding"
-		uIPadding.PaddingBottom = UDim.new(0, 3)
-		uIPadding.PaddingLeft = UDim.new(0, 3)
-		uIPadding.PaddingRight = UDim.new(0, 3)
-		uIPadding.PaddingTop = UDim.new(0, 3)
+		uIPadding.PaddingBottom = UDim.new(0, 1)
+		uIPadding.PaddingLeft = UDim.new(0, 8)
+		uIPadding.PaddingRight = UDim.new(0, 8)
+		uIPadding.PaddingTop = UDim.new(0, 1)
 
 		Section.Elements.SectionContent = aholder
 
@@ -1869,6 +1869,13 @@ function Library.Window(self, Options)
 		uIListLayoutA.Padding = UDim.new(0, 4)
 		uIListLayoutA.SortOrder = Enum.SortOrder.LayoutOrder
 		uIListLayoutA.Parent = aholder
+
+		local uIPadding = Instance.new("UIPadding", aholder)
+		uIPadding.Name = "UIPadding"
+		uIPadding.PaddingBottom = UDim.new(0, 1)
+		uIPadding.PaddingLeft = UDim.new(0, 8)
+		uIPadding.PaddingRight = UDim.new(0, 8)
+		uIPadding.PaddingTop = UDim.new(0, 1)
 
 		local subsectionObj = {
 			Elements = { SectionContent = aholder },
@@ -2180,7 +2187,7 @@ function Library.Window(self, Options)
 		toggleName.BackgroundTransparency = 1
 		toggleName.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		toggleName.BorderSizePixel = 0
-		toggleName.Position = UDim2.new(0, 8, 0.5, 0)
+		toggleName.Position = UDim2.new(0, 0, 0.5, 0)
 		toggleName.Size = Library.UDim2(1, -52, 1, 0)
 		toggleName.Parent = toggleElement
 
@@ -2562,7 +2569,7 @@ function Library.Window(self, Options)
 		slidername.BackgroundTransparency = 1
 		slidername.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		slidername.BorderSizePixel = 0
-		slidername.Position = UDim2.fromOffset(8, 0)
+		slidername.Position = UDim2.fromOffset(0, 0)
 		slidername.Size = Library.UDim2(1, -52, 1, 0)
 		slidername.Parent = textHolder
 
@@ -2810,8 +2817,8 @@ function Library.Window(self, Options)
 		dropdownname.BackgroundTransparency = 1
 		dropdownname.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		dropdownname.BorderSizePixel = 0
-		dropdownname.Position = UDim2.new(0, 8, 0.5, 0)
-		dropdownname.Size = Library.UDim2(1, -12, 0, 15)
+		dropdownname.Position = UDim2.new(0, 0, 0.5, 0)
+		dropdownname.Size = Library.UDim2(1, -4, 0, 15)
 		dropdownname.Parent = dropdown
 
 		local dropdowncurrentframe = Instance.new("TextButton")		
@@ -2824,7 +2831,7 @@ function Library.Window(self, Options)
 		dropdowncurrentframe.BackgroundTransparency = 1
 		dropdowncurrentframe.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		dropdowncurrentframe.BorderSizePixel = 0
-		dropdowncurrentframe.Position = UDim2.new(1, -7, 0.5, 0)
+		dropdowncurrentframe.Position = UDim2.new(1, 0, 0.5, 0)
 		dropdowncurrentframe.Size = Dropdown.AutoSize and UDim2.fromOffset(0, 21) or UDim2.fromOffset(80, 21)
 		dropdowncurrentframe.Parent = dropdown
 
@@ -2932,7 +2939,7 @@ function Library.Window(self, Options)
         dropdownList.Position = UDim2.fromScale(1, 1.02)
         dropdownList.Size = Dropdown.AutoSize and UDim2.new(0, math.max(120, dropdowncurrentframe.AbsoluteSize.X), 0, 0) or UDim2.fromScale(1.5, 6)
         dropdownList.Visible = false
-        dropdownList.ZIndex = Dropdown.ZIndex
+        dropdownList.ZIndex = 60000 -- Higher than lists
         dropdownList.ClipsDescendants = true
         dropdownList.Parent = dropdowncurrentframe
 
@@ -2972,7 +2979,7 @@ function Library.Window(self, Options)
             searchInput.BorderSizePixel = 0
             searchInput.Size = Library.UDim2(1, -8, 0, 20)
             searchInput.Position = UDim2.new(0, 4, 0, 4)
-            searchInput.ZIndex = Dropdown.ZIndex + 5
+            searchInput.ZIndex = 60005
             searchInput.Parent = dropdownList
 
             local searchCorner = Instance.new("UICorner")
@@ -2997,7 +3004,7 @@ function Library.Window(self, Options)
             searchIcon.BorderSizePixel = 0
             searchIcon.Position = UDim2.new(1, 6, 0.5, 0)
             searchIcon.Size = UDim2.fromOffset(14, 14)
-            searchIcon.ZIndex = Dropdown.ZIndex + 6
+            searchIcon.ZIndex = 60006
             searchIcon.Parent = searchInput
 
             -- Add padding to prevent text overlap with icon
@@ -3024,7 +3031,7 @@ function Library.Window(self, Options)
 		optionHolder.Active = true
         optionHolder.Size = UDim2.fromScale(1, 1)
         optionHolder.Position = Dropdown.Searchable and UDim2.new(0, 0, 0, 28) or UDim2.new(0, 0, 0, 0)
-        optionHolder.ZIndex = Dropdown.ZIndex + 2
+        optionHolder.ZIndex = 60002
         optionHolder.ClipsDescendants = true
         optionHolder.Parent = dropdownList
 
@@ -3095,13 +3102,99 @@ function Library.Window(self, Options)
                 end
             end)
 
+            -- Add focus animation for search input
+            searchInput.Focused:Connect(function()
+                if searchInput and searchIcon then
+                    local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+                    TweenService:Create(searchInput, tweenInfo, {
+                        BackgroundTransparency = 0.1,
+                    }):Play()
+                    
+                    -- Highlight search icon when focused
+                    TweenService:Create(searchIcon, tweenInfo, {
+                        ImageColor3 = Color3.fromRGB(255, 255, 255),
+                    }):Play()
+                end
+            end)
+
             searchInput.FocusLost:Connect(function()
+                if searchInput and searchIcon then
+                    local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+                    TweenService:Create(searchInput, tweenInfo, {
+                        BackgroundTransparency = 0.2,
+                    }):Play()
+                    
+                    -- Unhighlight search icon when unfocused
+                    TweenService:Create(searchIcon, tweenInfo, {
+                        ImageColor3 = Color3.fromRGB(80, 80, 75),
+                    }):Play()
+                end
+                
                 -- Keep focus when dropdown is open
                 if (Dropdown.isOpen) then
-                    task.wait(0.1)
-                    if (Dropdown.isOpen) then
-                        searchInput:CaptureFocus()
-                    end
+                    task.spawn(function()
+                        task.wait(0.1)
+                        if (Dropdown.isOpen and searchInput) then
+                            searchInput:CaptureFocus()
+                        end
+                    end)
+                end
+            end)
+
+            -- Add hover effects for search input and icon
+            searchInput.MouseEnter:Connect(function()
+                if searchIcon and not searchInput:IsFocused() then
+                    local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+                    TweenService:Create(searchIcon, tweenInfo, {
+                        ImageColor3 = Color3.fromRGB(120, 120, 115),
+                    }):Play()
+                end
+            end)
+
+            searchInput.MouseLeave:Connect(function()
+                if searchIcon and searchInput and not searchInput:IsFocused() then
+                    local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+                    TweenService:Create(searchIcon, tweenInfo, {
+                        ImageColor3 = Color3.fromRGB(80, 80, 75),
+                    }):Play()
+                end
+            end)
+
+            -- Add click detection for search input
+            local function highlightSearchOnClick()
+                if searchIcon and searchInput then
+                    local tweenInfo = TweenInfo.new(0.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+                    TweenService:Create(searchIcon, tweenInfo, {
+                        ImageColor3 = Color3.fromRGB(255, 255, 255),
+                    }):Play()
+                    TweenService:Create(searchInput, tweenInfo, {
+                        BackgroundTransparency = 0.05,
+                    }):Play()
+                    
+                    task.spawn(function()
+                        task.wait(0.1)
+                        if searchInput then
+                            TweenService:Create(searchInput, tweenInfo, {
+                                BackgroundTransparency = 0.1,
+                            }):Play()
+                        end
+                    end)
+                end
+            end
+
+            searchInput.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                    highlightSearchOnClick()
+                end
+            end)
+
+            -- Also trigger on GuiState change when search becomes active
+            searchInput:GetPropertyChangedSignal("Text"):Connect(function()
+                if searchInput:IsFocused() and searchIcon then
+                    local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+                    TweenService:Create(searchIcon, tweenInfo, {
+                        ImageColor3 = Color3.fromRGB(255, 255, 255),
+                    }):Play()
                 end
             end)
         end
@@ -3161,7 +3254,7 @@ function Library.Window(self, Options)
 			textButton.Text = ""
 			textButton.BackgroundTransparency = 1
 			textButton.Size = UDim2.fromScale(1, 1)
-			textButton.ZIndex = Dropdown.ZIndex + 10
+			textButton.ZIndex = 60010
 			textButton.AutoButtonColor = false
 			textButton.Parent = option
 
@@ -3292,22 +3385,22 @@ function Library.Window(self, Options)
             if (Dropdown.isOpen) then
                 Library.CurrentOpenDropdown = Dropdown
                 -- Increase ZIndex to render above all other elements including lists
-                dropdownList.ZIndex = 50000
-                optionHolder.ZIndex = 50002
+                dropdownList.ZIndex = 60000
+                optionHolder.ZIndex = 60002
                 if (Dropdown.searchInput) then
-                    Dropdown.searchInput.ZIndex = 50005
+                    Dropdown.searchInput.ZIndex = 60005
                 end
                 if (Dropdown.searchIcon) then
-                    Dropdown.searchIcon.ZIndex = 50006
+                    Dropdown.searchIcon.ZIndex = 60006
                 end
                 
                 -- Update all option button ZIndex values to ensure they render on top
                 for _, optionData in pairs(Dropdown.OptionInsts) do
                     if optionData.button then
-                        optionData.button.ZIndex = 50010
+                        optionData.button.ZIndex = 60010
                     end
                     if optionData.frame then
-                        optionData.frame.ZIndex = 50003
+                        optionData.frame.ZIndex = 60003
                     end
                 end
                 -- Focus search input when opening
@@ -3494,26 +3587,36 @@ function Library.Window(self, Options)
                     optionCount = optionCount + 1
                 end
                 
-                local optionHeight = 10
-                local padding = 6
-                local topPadding = 5
-                local bottomPadding = 5
-                local calculatedHeight = (optionCount * optionHeight) + ((optionCount - 1) * padding) + topPadding + bottomPadding
+                -- Better calculation for autosize
+                local optionHeight = 20
+                local padding = 2
+                local topPadding = 4
+                local bottomPadding = 4
+                local searchHeight = Dropdown.Searchable and 28 or 0
+                
+                local calculatedHeight = (optionCount * optionHeight) + ((optionCount - 1) * padding) + topPadding + bottomPadding + searchHeight
                 local maxHeight = Dropdown.ScrollMaxHeight or 200
                 local finalHeight = math.min(calculatedHeight, maxHeight)
                 
-                dropdownList.Size = Library.UDim2(0, math.max(120, dropdowncurrentframe.AbsoluteSize.X), 0, finalHeight)
+                -- Calculate width based on content
+                local maxWidth = 120
+                for optionName, _ in pairs(Dropdown.OptionInsts) do
+                    local textSize = game:GetService("TextService"):GetTextSize(optionName, 12, Enum.Font.SourceSans, Vector2.new(1000, 20))
+                    maxWidth = math.max(maxWidth, textSize.X + 40)
+                end
+                
+                dropdownList.Size = Library.UDim2(0, math.max(120, maxWidth), 0, finalHeight)
                 dropdownList.Position = UDim2.new(1, 0, 0, 23)
                 
                 if (calculatedHeight > maxHeight) then
                     optionHolder.ScrollBarThickness = 0
                     optionHolder.AutomaticSize = Enum.AutomaticSize.None
                     optionHolder.Size = UDim2.fromScale(1, 1)
-                    optionHolder.CanvasSize = Library.UDim2(0, 0, 0, calculatedHeight)
+                    optionHolder.CanvasSize = Library.UDim2(0, 0, 0, calculatedHeight - searchHeight)
                 else
                     optionHolder.ScrollBarThickness = 0
                     optionHolder.AutomaticSize = Enum.AutomaticSize.Y
-                    optionHolder.Size = Library.UDim2(1, 0, 0, finalHeight)
+                    optionHolder.Size = Library.UDim2(1, 0, 0, finalHeight - searchHeight)
                     optionHolder.CanvasSize = UDim2.new(0, 0, 0, 0)
                 end
             else
@@ -3550,9 +3653,6 @@ function Library.Window(self, Options)
 			
 			if (input.UserInputType == Enum.UserInputType.MouseButton1) then
 				if (Library.CurrentOpenDropdown and Library.CurrentOpenDropdown == Dropdown) then
-					local mouse = LocalPlayer:GetMouse()
-					local mousePos = Vector2.new(mouse.X, mouse.Y)
-					
 					local overDropdownFrame = Library:IsMouseOverFrame(dropdown)
 					local overDropdownList = Library:IsMouseOverFrame(dropdownList)
 					
@@ -4078,8 +4178,8 @@ function Library.Window(self, Options)
 		textboxname.BackgroundTransparency = 1
 		textboxname.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		textboxname.BorderSizePixel = 0
-		textboxname.Position = UDim2.new(0, 8, 0.5, 0)
-		textboxname.Size = Library.UDim2(1, -12, 0, 15)
+		textboxname.Position = UDim2.new(0, 0, 0.5, 0)
+		textboxname.Size = Library.UDim2(1, -8, 0, 15)
 		textboxname.Parent = textox
 
 		local textboxcurrentframe = Instance.new("Frame")		
@@ -4369,8 +4469,8 @@ function Library.Window(self, Options)
 		textboxname.BackgroundTransparency = 1
 		textboxname.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		textboxname.BorderSizePixel = 0
-		textboxname.Position = UDim2.new(0, 8, 0.5, 0)
-		textboxname.Size = Library.UDim2(1, -12, 0, 15)
+		textboxname.Position = UDim2.new(0, 0, 0.5, 0)
+		textboxname.Size = Library.UDim2(1, -8, 0, 15)
 		textboxname.Parent = keybindframE
 
 		local keybindcurrentframe = Instance.new("Frame")		
@@ -4671,8 +4771,8 @@ function Library.Window(self, Options)
 		colorpickername.BackgroundTransparency = 1
 		colorpickername.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		colorpickername.BorderSizePixel = 0
-		colorpickername.Position = UDim2.new(0, 8, 0.5, 0)
-		colorpickername.Size = Library.UDim2(1, -12, 0, 15)
+		colorpickername.Position = UDim2.new(0, 0, 0.5, 0)
+		colorpickername.Size = Library.UDim2(1, -8, 0, 15)
 		colorpickername.Parent = colorpickerframe
 
 		local box = Instance.new("TextButton")		
