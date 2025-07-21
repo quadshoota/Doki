@@ -2932,7 +2932,7 @@ function Library.Window(self, Options)
         dropdownList.Position = UDim2.fromScale(1, 1.02)
         dropdownList.Size = Dropdown.AutoSize and UDim2.new(0, math.max(120, dropdowncurrentframe.AbsoluteSize.X), 0, 0) or UDim2.fromScale(1.5, 6)
         dropdownList.Visible = false
-        dropdownList.ZIndex = 60000 -- Higher than lists
+        dropdownList.ZIndex = Dropdown.ZIndex
         dropdownList.ClipsDescendants = true
         dropdownList.Parent = dropdowncurrentframe
 
@@ -2972,7 +2972,7 @@ function Library.Window(self, Options)
             searchInput.BorderSizePixel = 0
             searchInput.Size = Library.UDim2(1, -8, 0, 20)
             searchInput.Position = UDim2.new(0, 4, 0, 4)
-            searchInput.ZIndex = 60005
+            searchInput.ZIndex = Dropdown.ZIndex + 5
             searchInput.Parent = dropdownList
 
             local searchCorner = Instance.new("UICorner")
@@ -2997,7 +2997,7 @@ function Library.Window(self, Options)
             searchIcon.BorderSizePixel = 0
             searchIcon.Position = UDim2.new(1, 6, 0.5, 0)
             searchIcon.Size = UDim2.fromOffset(14, 14)
-            searchIcon.ZIndex = 60006
+            searchIcon.ZIndex = Dropdown.ZIndex + 6
             searchIcon.Parent = searchInput
 
             -- Add padding to prevent text overlap with icon
@@ -3024,7 +3024,7 @@ function Library.Window(self, Options)
 		optionHolder.Active = true
         optionHolder.Size = UDim2.fromScale(1, 1)
         optionHolder.Position = Dropdown.Searchable and UDim2.new(0, 0, 0, 28) or UDim2.new(0, 0, 0, 0)
-        optionHolder.ZIndex = 60002
+        optionHolder.ZIndex = Dropdown.ZIndex + 2
         optionHolder.ClipsDescendants = true
         optionHolder.Parent = dropdownList
 
@@ -3104,19 +3104,6 @@ function Library.Window(self, Options)
                     end
                 end
             end)
-
-            -- Add click animation for search input
-            searchInput.MouseButton1Click:Connect(function()
-                local tweenInfo = TweenInfo.new(0.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-                TweenService:Create(searchInput, tweenInfo, {
-                    BackgroundTransparency = 0.1,
-                }):Play()
-                
-                task.wait(0.15)
-                TweenService:Create(searchInput, tweenInfo, {
-                    BackgroundTransparency = 0.2,
-                }):Play()
-            end)
         end
 
         local function updateCurrentText()
@@ -3174,7 +3161,7 @@ function Library.Window(self, Options)
 			textButton.Text = ""
 			textButton.BackgroundTransparency = 1
 			textButton.Size = UDim2.fromScale(1, 1)
-			textButton.ZIndex = 60010
+			textButton.ZIndex = Dropdown.ZIndex + 10
 			textButton.AutoButtonColor = false
 			textButton.Parent = option
 
@@ -3507,36 +3494,26 @@ function Library.Window(self, Options)
                     optionCount = optionCount + 1
                 end
                 
-                -- Better calculation for autosize
-                local optionHeight = 20
-                local padding = 2
-                local topPadding = 4
-                local bottomPadding = 4
-                local searchHeight = Dropdown.Searchable and 28 or 0
-                
-                local calculatedHeight = (optionCount * optionHeight) + ((optionCount - 1) * padding) + topPadding + bottomPadding + searchHeight
+                local optionHeight = 10
+                local padding = 6
+                local topPadding = 5
+                local bottomPadding = 5
+                local calculatedHeight = (optionCount * optionHeight) + ((optionCount - 1) * padding) + topPadding + bottomPadding
                 local maxHeight = Dropdown.ScrollMaxHeight or 200
                 local finalHeight = math.min(calculatedHeight, maxHeight)
                 
-                -- Calculate width based on content
-                local maxWidth = 120
-                for optionName, _ in pairs(Dropdown.OptionInsts) do
-                    local textSize = TextService:GetTextSize(optionName, 12, Font.new("rbxassetid://12187365364"), Vector2.new(1000, 20))
-                    maxWidth = math.max(maxWidth, textSize.X + 40)
-                end
-                
-                dropdownList.Size = Library.UDim2(0, math.max(120, maxWidth), 0, finalHeight)
+                dropdownList.Size = Library.UDim2(0, math.max(120, dropdowncurrentframe.AbsoluteSize.X), 0, finalHeight)
                 dropdownList.Position = UDim2.new(1, 0, 0, 23)
                 
                 if (calculatedHeight > maxHeight) then
                     optionHolder.ScrollBarThickness = 0
                     optionHolder.AutomaticSize = Enum.AutomaticSize.None
                     optionHolder.Size = UDim2.fromScale(1, 1)
-                    optionHolder.CanvasSize = Library.UDim2(0, 0, 0, calculatedHeight - searchHeight)
+                    optionHolder.CanvasSize = Library.UDim2(0, 0, 0, calculatedHeight)
                 else
                     optionHolder.ScrollBarThickness = 0
                     optionHolder.AutomaticSize = Enum.AutomaticSize.Y
-                    optionHolder.Size = Library.UDim2(1, 0, 0, finalHeight - searchHeight)
+                    optionHolder.Size = Library.UDim2(1, 0, 0, finalHeight)
                     optionHolder.CanvasSize = UDim2.new(0, 0, 0, 0)
                 end
             else
@@ -3573,6 +3550,9 @@ function Library.Window(self, Options)
 			
 			if (input.UserInputType == Enum.UserInputType.MouseButton1) then
 				if (Library.CurrentOpenDropdown and Library.CurrentOpenDropdown == Dropdown) then
+					local mouse = LocalPlayer:GetMouse()
+					local mousePos = Vector2.new(mouse.X, mouse.Y)
+					
 					local overDropdownFrame = Library:IsMouseOverFrame(dropdown)
 					local overDropdownList = Library:IsMouseOverFrame(dropdownList)
 					
