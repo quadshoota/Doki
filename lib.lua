@@ -853,8 +853,8 @@ function Library.Window(self, Options)
 	BlurTemplate.BackgroundTransparency = 1
 	Library.BlurTemplate = BlurTemplate
 
-	local root = Instance.new("Folder", workspace.CurrentCamera)
-	root.Name = "BlurSnox"
+	local troot = Instance.new("Folder", workspace.CurrentCamera)
+	troot.Name = "BlurSnox"
 
 	local gTokenMH = 99999999
 	local gToken = math.random(1, gTokenMH)
@@ -968,6 +968,7 @@ function Library.Window(self, Options)
 
 	local binds = {}
 
+	warn("SetOpen")
 	function Library.SetOpen(self, bool)
 		if (typeof(bool) == "boolean") then
 			Library.Open = bool
@@ -1088,6 +1089,8 @@ function Library.Window(self, Options)
 			end
 		end
 	end
+
+	warn("Library")
 
 	Library:SetOpen(true)
 
@@ -1258,6 +1261,8 @@ function Library.Window(self, Options)
 	line2.Parent = sidebarHolder
 
 	sidebarHolder.Parent = theholderdwbbg
+
+	warn("Window")
 
 	local content = Instance.new("Frame")	
 	content.Name = "content"
@@ -1536,6 +1541,8 @@ function Library.Window(self, Options)
 		return setmetatable(Tab, Library.Tabs)
 	end
 
+	warn("Section")
+
 	function Tabs.Section(self, Properties)
 		if (not Properties) then
 			Properties = {}
@@ -1752,6 +1759,7 @@ function Library.Window(self, Options)
 		return setmetatable(Section, Library.Sections)
 	end
 
+	warn("Subsection")
 	function Sections.Subsection(self, Properties)
 		Properties = Properties or {}
 		self._Subsections = self._Subsections or {}
