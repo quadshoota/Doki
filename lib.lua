@@ -2831,7 +2831,7 @@ function Library.Window(self, Options)
 		dropdowncurrentframe.BackgroundTransparency = 1
 		dropdowncurrentframe.BorderColor3 = Color3.fromRGB(0, 0, 0)
 		dropdowncurrentframe.BorderSizePixel = 0
-		dropdowncurrentframe.Position = UDim2.new(1, 0, 0.5, 0)
+		dropdowncurrentframe.Position = UDim2.new(1, -7, 0.5, 0)
 		dropdowncurrentframe.Size = Dropdown.AutoSize and UDim2.fromOffset(0, 21) or UDim2.fromOffset(80, 21)
 		dropdowncurrentframe.Parent = dropdown
 
