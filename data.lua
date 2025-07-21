@@ -3,7 +3,7 @@
 
 local Data =
 {
-    Updated = "2025-07-19 22:00",
+    Updated = "2025-07-21 16:30",
     Version = "1.0.0",
     UpdatedBy = "kezo",
     Changelog = {
