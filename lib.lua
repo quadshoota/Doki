@@ -663,7 +663,7 @@ function Library.Window(self, Options)
 		local startPos = nil
 		local startSize = nil
 		
-		local function updateSize(inputPos)
+		local function updateSize(inputPos, finishResize)
 			if (not startPos or not startSize) then 
 				return 
 			end
@@ -681,7 +681,11 @@ function Library.Window(self, Options)
 			local newHeight = math.clamp(startSize.Y.Offset + deltaY, minHeight, maxHeight)
 			
 			object.Size = UDim2.new(startSize.X.Scale, newWidth, startSize.Y.Scale, newHeight)
-			Library:UpdateTextScaling()
+			
+			-- Only call expensive operations when finishing resize
+			if (finishResize) then
+				Library:UpdateTextScaling()
+			end
 		end
 		
 		UserInputService.InputBegan:Connect(function(input, gameProcessed)
@@ -704,12 +708,14 @@ function Library.Window(self, Options)
 		
 		UserInputService.InputChanged:Connect(function(input, gameProcessed)
 			if (resizing and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch)) then
-				updateSize(input.Position)
+				updateSize(input.Position, false)
 			end
 		end)
 		
 		UserInputService.InputEnded:Connect(function(input, gameProcessed)
 			if ((input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and resizing) then
+				-- Call updateSize one final time with finishResize = true to apply expensive operations
+				updateSize(input.Position, true)
 				resizing = false
 				startPos = nil
 				startSize = nil
