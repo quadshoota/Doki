@@ -1044,14 +1044,23 @@ function Library.Window(self, Options)
 
 				UpdateOrientation(true)
 
-				RunService:BindToRenderStep(uid, 2000, function()
+				-- Use Heartbeat connection instead of BindToRenderStep for Luarmor compatibility
+				local connection = RunService.Heartbeat:Connect(function()
 					if (Library.Open) then
 						UpdateOrientation()
+					else
+						connection:Disconnect()
 					end
 				end)
+				
+				-- Store connection for cleanup
+				binds[uid].connection = connection
 			else
 				for uid, bind in pairs(binds) do
-					RunService:UnbindFromRenderStep(uid)
+					-- Disconnect the Heartbeat connection instead of UnbindFromRenderStep
+					if (bind.connection) then
+						bind.connection:Disconnect()
+					end
 
 					for _, part in pairs(bind.parts) do
 						part.Transparency = 1
