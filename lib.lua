@@ -5698,6 +5698,183 @@ function Sections.Paragraph(self, Properties)
 	return Paragraph
 end
 
+function Sections.Image(self, Properties)
+	if (not Properties) then
+		Properties = {}
+	end
+
+	local Image = {
+		Window = self.Window,
+		Section = self,
+		Name = Properties.Name or "Image",
+		Image = Properties.Image and tostring(Properties.Image) or "rbxassetid://0",
+		Width = Properties.Width or 100,
+		Height = Properties.Height or 100,
+		ImageColor3 = Properties.ImageColor3 or Color3.fromRGB(255, 255, 255),
+		ImageTransparency = Properties.ImageTransparency or 0,
+		BackgroundTransparency = Properties.BackgroundTransparency or 1,
+		BackgroundColor3 = Properties.BackgroundColor3 or Color3.fromRGB(35, 35, 33),
+		Position = Properties.Position or "Center", -- Left, Center, Right
+		ScaleType = Properties.ScaleType or Enum.ScaleType.Stretch,
+		Flag = Properties.Flag or Library.NextFlag(),
+		Depends = Properties.Depends,
+	}
+
+	local imageFrame = Instance.new("Frame", Image.Section.Elements.SectionContent)
+	Image.Elements = { ImageFrame = imageFrame }
+	imageFrame.Name = "ImageFrame"
+	imageFrame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	imageFrame.BackgroundTransparency = 1
+	imageFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	imageFrame.BorderSizePixel = 0
+	imageFrame.Size = Library.UDim2(1, 0, 0, Image.Height + 8)
+
+	local contentHolder = Instance.new("Frame")
+	contentHolder.Name = "ContentHolder"
+	contentHolder.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	contentHolder.BackgroundTransparency = 1
+	contentHolder.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	contentHolder.BorderSizePixel = 0
+	contentHolder.Size = Library.UDim2(1, 0, 1, 0)
+	contentHolder.Parent = imageFrame
+
+	-- Position content holder based on alignment
+	if (Image.Position == "Left") then
+		contentHolder.Position = UDim2.new(0, 8, 0, 4)
+		contentHolder.Size = Library.UDim2(1, -16, 1, -8)
+	elseif (Image.Position == "Right") then
+		contentHolder.Position = UDim2.new(0, 0, 0, 4)
+		contentHolder.Size = Library.UDim2(1, -8, 1, -8)
+	else -- Center
+		contentHolder.Position = UDim2.new(0, 0, 0, 4)
+		contentHolder.Size = Library.UDim2(1, 0, 1, -8)
+	end
+
+	local imageLabel = Instance.new("ImageLabel")
+	imageLabel.Name = "ImageLabel"
+	imageLabel.Image = Image.Image
+	imageLabel.ImageColor3 = Image.ImageColor3
+	imageLabel.ImageTransparency = Image.ImageTransparency
+	imageLabel.BackgroundColor3 = Image.BackgroundColor3
+	imageLabel.BackgroundTransparency = Image.BackgroundTransparency
+	imageLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	imageLabel.BorderSizePixel = 0
+	imageLabel.ScaleType = Image.ScaleType
+	imageLabel.Size = UDim2.fromOffset(Image.Width, Image.Height)
+	imageLabel.Parent = contentHolder
+
+	-- Position image based on alignment
+	if (Image.Position == "Left") then
+		imageLabel.Position = UDim2.new(0, 0, 0, 0)
+		imageLabel.AnchorPoint = Vector2.new(0, 0)
+	elseif (Image.Position == "Right") then
+		imageLabel.Position = UDim2.new(1, 0, 0, 0)
+		imageLabel.AnchorPoint = Vector2.new(1, 0)
+	else -- Center
+		imageLabel.Position = UDim2.new(0.5, 0, 0, 0)
+		imageLabel.AnchorPoint = Vector2.new(0.5, 0)
+	end
+
+	-- Add corner radius if background is visible
+	if Image.BackgroundTransparency < 1 then
+		local uICorner = Instance.new("UICorner")
+		uICorner.Name = "UICorner"
+		uICorner.CornerRadius = UDim.new(0, 6)
+		uICorner.Parent = imageLabel
+	end
+
+	function Image.SetImage(self, newImage)
+		self.Image = newImage and tostring(newImage) or "rbxassetid://0"
+		imageLabel.Image = self.Image
+	end
+
+	function Image.SetSize(self, width, height)
+		self.Width = width or self.Width
+		self.Height = height or self.Height
+		imageLabel.Size = UDim2.fromOffset(self.Width, self.Height)
+		imageFrame.Size = Library.UDim2(1, 0, 0, self.Height + 8)
+	end
+
+	function Image.SetWidth(self, width)
+		self:SetSize(width, nil)
+	end
+
+	function Image.SetHeight(self, height)
+		self:SetSize(nil, height)
+	end
+
+	function Image.SetImageColor3(self, color)
+		self.ImageColor3 = color
+		imageLabel.ImageColor3 = color
+	end
+
+	function Image.SetImageTransparency(self, transparency)
+		self.ImageTransparency = transparency
+		imageLabel.ImageTransparency = transparency
+	end
+
+	function Image.SetBackgroundColor3(self, color)
+		self.BackgroundColor3 = color
+		imageLabel.BackgroundColor3 = color
+	end
+
+	function Image.SetBackgroundTransparency(self, transparency)
+		self.BackgroundTransparency = transparency
+		imageLabel.BackgroundTransparency = transparency
+		
+		-- Add or remove corner radius based on transparency
+		local existingCorner = imageLabel:FindFirstChild("UICorner")
+		if transparency < 1 and not existingCorner then
+			local uICorner = Instance.new("UICorner")
+			uICorner.Name = "UICorner"
+			uICorner.CornerRadius = UDim.new(0, 6)
+			uICorner.Parent = imageLabel
+		elseif transparency >= 1 and existingCorner then
+			existingCorner:Destroy()
+		end
+	end
+
+	function Image.SetPosition(self, position)
+		self.Position = position
+		
+		-- Update content holder positioning
+		if (position == "Left") then
+			contentHolder.Position = UDim2.new(0, 8, 0, 4)
+			contentHolder.Size = Library.UDim2(1, -16, 1, -8)
+			imageLabel.Position = UDim2.new(0, 0, 0, 0)
+			imageLabel.AnchorPoint = Vector2.new(0, 0)
+		elseif (position == "Right") then
+			contentHolder.Position = UDim2.new(0, 0, 0, 4)
+			contentHolder.Size = Library.UDim2(1, -8, 1, -8)
+			imageLabel.Position = UDim2.new(1, 0, 0, 0)
+			imageLabel.AnchorPoint = Vector2.new(1, 0)
+		else -- Center
+			contentHolder.Position = UDim2.new(0, 0, 0, 4)
+			contentHolder.Size = Library.UDim2(1, 0, 1, -8)
+			imageLabel.Position = UDim2.new(0.5, 0, 0, 0)
+			imageLabel.AnchorPoint = Vector2.new(0.5, 0)
+		end
+	end
+
+	function Image.SetScaleType(self, scaleType)
+		self.ScaleType = scaleType
+		imageLabel.ScaleType = scaleType
+	end
+
+	function Image.SetVisible(self, visible)
+		imageFrame.Visible = visible
+	end
+
+	Library.Elements[Image.Flag] = Image
+	
+	-- Check dependencies on creation
+	if Image.Depends then
+		Library.UpdateElementVisibility(Image)
+	end
+
+	return Image
+end
+
 function Library.MobileButton(self)
 	local menu = Instance.new("TextButton")		
 	menu.Name = "Menu"
