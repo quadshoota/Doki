@@ -1648,7 +1648,7 @@ function Library.Window(self, Options)
 
 		local minimizeIcon = Instance.new("ImageLabel")
 		minimizeIcon.Name = "MinimizeIcon"
-		minimizeIcon.Image = "rbxassetid://130874251508193"
+		minimizeIcon.Image = "rbxassetid://115894980866040"
 		minimizeIcon.ImageColor3 = Color3.fromRGB(115, 115, 115)
 		minimizeIcon.AnchorPoint = Vector2.new(0.5, 0.5)
 		minimizeIcon.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -5896,7 +5896,7 @@ function Library.MobileButton(self)
 
 	local logo = Instance.new("ImageLabel")		
 	logo.Name = "logo"
-	logo.Image = "rbxassetid://123772573548792"
+	logo.Image = "rbxassetid://130874251508193"
 	logo.AnchorPoint = Vector2.new(0.5, 0.5)
 	logo.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 	logo.BackgroundTransparency = 1
