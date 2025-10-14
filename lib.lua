@@ -1831,12 +1831,6 @@ function Library.Window(self, Options)
 			Section:ToggleMinimize()
 		end)
 
-		minimizeButton.InputBegan:Connect(function(input)
-			if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
-				Section:ToggleMinimize()
-			end
-		end)
-
 
 		-- Hover effects for minimize button
 		minimizeButton.MouseEnter:Connect(function()
