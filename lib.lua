@@ -1004,7 +1004,7 @@ function Library.Window(self, Options)
 
 	local binds = {}
 
-	warn("SetOpen")
+	--warn("SetOpen")
 	function Library.SetOpen(self, bool)
 		if (typeof(bool) == "boolean") then
 			Library.Open = bool
@@ -1126,7 +1126,7 @@ function Library.Window(self, Options)
 		end
 	end
 
-	warn("Library")
+	--warn("Library")
 
 	Library:SetOpen(true)
 
@@ -1298,7 +1298,7 @@ function Library.Window(self, Options)
 
 	sidebarHolder.Parent = theholderdwbbg
 
-	warn("Window")
+	--warn("Window")
 
 	local content = Instance.new("Frame")	
 	content.Name = "content"
@@ -1577,7 +1577,7 @@ function Library.Window(self, Options)
 		return setmetatable(Tab, Library.Tabs)
 	end
 
-	warn("Section")
+	--warn("Section")
 
 	function Tabs.Section(self, Properties)
 		if (not Properties) then
@@ -1831,6 +1831,13 @@ function Library.Window(self, Options)
 			Section:ToggleMinimize()
 		end)
 
+		minimizeButton.InputBegan:Connect(function(input)
+			if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
+				Section:ToggleMinimize()
+			end
+		end)
+
+
 		-- Hover effects for minimize button
 		minimizeButton.MouseEnter:Connect(function()
 			if Section.Elements.MinimizeIcon then
@@ -1957,7 +1964,7 @@ function Library.Window(self, Options)
 		return setmetatable(Section, Library.Sections)
 	end
 
-	warn("Subsection")
+	--warn("Subsection")
 	function Sections.Subsection(self, Properties)
 		Properties = Properties or {}
 		self._Subsections = self._Subsections or {}
